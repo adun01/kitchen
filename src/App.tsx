@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+
+import {stateInterface} from './store';
+
 import logo from './logo.svg';
 import './App.css';
 
-class App extends Component {
+class App extends Component<stateInterface> {
     render() {
         return (
             <div className="App">
@@ -25,4 +29,4 @@ class App extends Component {
     }
 }
 
-export default App;
+export default connect((state: stateInterface): stateInterface => state)(App);
