@@ -1,14 +1,22 @@
 import {createStore} from 'redux';
+import {Range} from 'react-input-range';
 
 export interface stateInterface {
-    auth: {
-        isAuth: boolean
-    }
+    recipes: {
+        list: {
+            id: number
+        }[]
+    },
+    query: Range
 }
 
 const initialState: stateInterface = {
-    auth: {
-        isAuth: false
+    recipes: {
+        list: []
+    },
+    query: {
+        min: 30,
+        max: 40
     }
 }
 
@@ -17,17 +25,8 @@ export const store = createStore((state: stateInterface = initialState, action):
         case 'LOG_IN':
             return {
                 ...state,
-                auth: {
-                    isAuth: true
-                }
-            };
-            break;
-
-        case 'LOG_OUT':
-            return {
-                ...state,
-                auth: {
-                    isAuth: false
+                recipes: {
+                    list: []
                 }
             };
             break;

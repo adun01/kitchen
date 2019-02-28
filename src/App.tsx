@@ -1,23 +1,17 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import {Switch, Route, Link} from 'react-router-dom'
-import {stateInterface} from './store';
 
-import logo from './logo.svg';
-import './App.css';
+import Header from './components/containers/Header';
+import MainSearch from './components/containers/Main-search';
 
-class App extends Component<stateInterface> {
+export default class App extends Component {
     render() {
         return (
-            <div className="App">
-                <header className="App-header">
-                    <Link to={`/list/`}>
-                        Go to list
-                    </Link>
-                </header>
+            <div>
+                <Header></Header>
+                <div className="container">
+                    <MainSearch></MainSearch>
+                </div>
             </div>
         );
     }
 }
-
-export default connect((state: stateInterface): stateInterface => state)(App);
