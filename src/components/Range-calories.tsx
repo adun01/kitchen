@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import InputRange, {Range} from 'react-input-range';
 import 'react-input-range/lib/css/index.css';
+import classNames from 'classnames';
 
 interface caloriesInterface {
     proteins: number,
@@ -13,15 +14,23 @@ let numberCallRender = 0;
 export default class KtnRangeCalories extends Component<{ query: Range }, {
     min: number,
     max: number,
-    calories: caloriesInterface
+    calories: caloriesInterface,
+    isFat: boolean
 }> {
+
+    public isDangerClassName() {
+        return classNames({
+            'text-danger': this.isFat()
+        });
+    }
 
     constructor(props: { query: Range }) {
         super(props);
         this.state = {
             min: this.props.query.min,
             max: this.props.query.max,
-            calories: this.getCalories()
+            calories: this.getCalories(),
+            isFat: false
         };
     }
 
@@ -29,7 +38,7 @@ export default class KtnRangeCalories extends Component<{ query: Range }, {
         return (
             <div className="form-group">
                 <div className="form-row">
-                    <div className="col-10">
+                    <div className="col-12">
                         <InputRange
                             formatLabel={this.formatLabel}
                             maxValue={100}
@@ -40,28 +49,39 @@ export default class KtnRangeCalories extends Component<{ query: Range }, {
                             }}
                             onChange={value => this.onChange(value)}/>
                     </div>
-                    <div className="col-2">
-                        <button className="btn btn-primary float-right">Submit!</button>
-                    </div>
                 </div>
-                <br/>
-                <div className="alert text-white bg-dark">
-                    <div className="row">
-                        <div className="col-2">
-                            proteins: {this.state.calories.proteins} <sup className="text-warning">calory</sup>
-                        </div>
-                        <div className="col-3">
-                            carbohydrates: {this.state.calories.carbohydrates} <sup
-                            className="text-warning">calory</sup>
-                        </div>
-                        <div className="col-2">
-                            fats: {this.state.calories.fats} <sup className="text-warning">calory</sup>
-                        </div>
-                        <div className="col-5">
-                            total: {this.getTotal()} <sup className="text-warning">(per 100 grams of product)</sup>
-                        </div>
-                    </div>
-                </div>
+                <table className="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Белки</th>
+                        <th scope="col">Углеводы</th>
+                        <th scope="col">Жиры</th>
+                        <th scope="col">Всего</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td scope="row">Грамм</td>
+                        <td>{this.state.calories.proteins / 4}</td>
+                        <td>{this.state.calories.carbohydrates / 4}</td>
+                        <td className={this.isDangerClassName()}>{this.state.calories.fats / 9}</td>
+                        <th scope="row">
+                            100
+                        </th>
+                    </tr>
+                    <tr>
+                        <td scope="row">Калорий</td>
+                        <td>{this.state.calories.proteins}</td>
+                        <td>{this.state.calories.carbohydrates}</td>
+                        <td className={this.isDangerClassName()}>{this.state.calories.fats}</td>
+                        <th scope="row">
+                            {this.getTotal()}
+                        </th>
+                    </tr>
+                    </tbody>
+                </table>
+                <sup className="text-warning">*(на 100 грамм продукта)</sup>
             </div>
         )
     }
@@ -70,16 +90,15 @@ export default class KtnRangeCalories extends Component<{ query: Range }, {
         if (numberCallRender === 0) {
             numberCallRender++;
             return '0';
-        }
-        if (numberCallRender === 1) {
+        } else if (numberCallRender === 1) {
             numberCallRender++;
-            return 'proteins :' + value;
+            return '' + value;
         }
-        if (numberCallRender === 2) {
+        else if (numberCallRender === 2) {
             numberCallRender++;
-            return 'carbohydrates :' + value;
+            return '' + value;
         }
-        if (numberCallRender === 3) {
+        else if (numberCallRender === 3) {
             numberCallRender = 0;
             return '100';
         }
@@ -92,9 +111,15 @@ export default class KtnRangeCalories extends Component<{ query: Range }, {
                 ...this.state,
                 min: params.min,
                 max: params.max,
-                calories: this.getCalories()
+                calories: this.getCalories(),
+                isFat: this.isFat()
             });
         }
+    }
+
+    private isFat() {
+        const carbohydrates = this.state ? this.state.max : this.props.query.max;
+        return carbohydrates <= 50;
     }
 
     private getCalories(): caloriesInterface {
