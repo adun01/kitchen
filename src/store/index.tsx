@@ -1,11 +1,12 @@
 import {createStore} from 'redux';
 import {Range} from 'react-input-range';
 
-interface filtersInterface {
+export interface filtersInterface {
     withoutMeat: boolean,
     onlyFresh: boolean,
     isDietary: boolean,
-    dukanDiet: boolean
+    dukanDiet: boolean,
+    [key: string]: boolean
 }
 
 export interface recipeInterface {
