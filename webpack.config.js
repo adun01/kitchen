@@ -4,7 +4,7 @@ module.exports = {
     entry: "./src/index.tsx",
     output: {
         filename: "[name].bundle.js",
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve('../', 'kitchen-serv/public/js')
     },
     resolve: {
         extensions: ['.tsx', '.js', '.jsx', '.jpg']
@@ -25,7 +25,7 @@ module.exports = {
             {
                 test: /\.(png|woff|woff2|eot|ttf|svg|jpg)$/,
                 loader: 'url-loader?limit=100000'
-            },{
+            }, {
                 test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 use: {
@@ -37,5 +37,6 @@ module.exports = {
             }
         ]
     },
-    watch: process.env.NODE_ENV === 'development'
+    watch: process.env.NODE_ENV === 'development',
+    devtool: process.env.NODE_ENV === 'development' && 'source-map'
 };

@@ -1,13 +1,16 @@
-import * as types from './types';
+import {SEARCH_RECIPES, REFRESH_RECIPES} from './types';
+import {recipeInterface} from '../';
 
-export function searchRecipes(params: {
-    name?: string,
-    proteins?: number,
-    carbohydrates?: number,
-    fat?: number
-}) {
+export function SearchRecipes(search: string) {
     return {
-        type: types.SEARCH_RECIPES,
-        payload: params
-    };
+        type: SEARCH_RECIPES,
+        payload: search
+    }
+}
+
+export function RefreshRecipes(recipes: recipeInterface[]) {
+    return {
+        type: REFRESH_RECIPES,
+        payload: recipes
+    }
 }

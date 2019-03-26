@@ -1,11 +1,18 @@
-import {createStore} from 'redux';
+import {createStore, applyMiddleware} from 'redux';
 import {Range} from 'react-input-range';
+import {parse} from 'query-string';
+import createSagaMiddleware from 'redux-saga'
+
+import rootSaga from './sagas'
+import {REFRESH_RECIPES} from './recipes/types'
+import {RefreshRecipes} from './recipes/actions'
 
 export interface filtersInterface {
     withoutMeat: boolean,
     onlyFresh: boolean,
     isDietary: boolean,
     dukanDiet: boolean,
+
     [key: string]: boolean
 }
 
@@ -22,57 +29,30 @@ export interface stateInterface {
     filters: filtersInterface
 }
 
+const {min, max, withoutMeat, onlyFresh, isDietary, dukanDiet} = parse(window.location.search);
+
 const initialState: stateInterface = {
-    recipes: [
-        {
-            id: 1,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/1.jpg'
-        }, {
-            id: 2,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/4.jpg'
-        }, {
-            id: 3,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/3.jpg'
-        }, {
-            id: 4,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/4.jpg'
-        }, {
-            id: 5,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/4.jpg'
-        }, {
-            id: 6,
-            name: 'Запеченные куринные ножки с соусом тартар',
-            description: 'Some quick example text to build on the card title and make up the bulk of the card\'s content.',
-            image: './images/4.jpg'
-        }
-    ],
+    recipes: [],
     query: {
-        min: 30,
-        max: 40
+        min: min ? +min : 30,
+        max: max ? +max : 40
     },
     filters: {
-        withoutMeat: false,
-        onlyFresh: false,
-        isDietary: true,
-        dukanDiet: false
+        withoutMeat: Boolean(withoutMeat),
+        onlyFresh: Boolean(onlyFresh),
+        isDietary: Boolean(isDietary),
+        dukanDiet: Boolean(dukanDiet)
     }
 }
 
-export const store = createStore((state: stateInterface = initialState, action): stateInterface => {
+const sagaMiddleware = createSagaMiddleware()
+
+export const store = createStore((state: stateInterface = initialState, action: any): stateInterface => {
     switch (action.type) {
-        case 'LOG_IN':
+        case REFRESH_RECIPES:
             return {
-                ...state
+                ...state,
+                recipes: action.payload
             };
             break;
         default:
@@ -80,4 +60,5 @@ export const store = createStore((state: stateInterface = initialState, action):
             break;
 
     }
-});
+}, applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(rootSaga);

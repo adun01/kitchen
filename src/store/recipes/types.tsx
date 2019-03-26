@@ -1,1 +1,2 @@
 export const SEARCH_RECIPES = 'SEARCH_RECIPES';
+export const REFRESH_RECIPES = 'REFRESH_RECIPES';

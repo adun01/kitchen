@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
+import {withRouter, RouteComponentProps} from 'react-router';
 
 import Header from './containers/Header';
 import MainSearch from './containers/Main-search';
 import MainGallery from './containers/Main-gallery';
 import FirstDisplay from './components/First-display';
 
-export default class App extends Component {
+class App extends Component<RouteComponentProps> {
     render() {
         return (
             <div>
@@ -18,7 +19,7 @@ export default class App extends Component {
                         </div>
                         <div className="col-4">
                             <div className="bg-light">
-                                <MainSearch></MainSearch>
+                                <MainSearch history={this.props.history}></MainSearch>
                             </div>
                         </div>
                     </div>
@@ -27,3 +28,5 @@ export default class App extends Component {
         );
     }
 }
+
+export default withRouter(App);

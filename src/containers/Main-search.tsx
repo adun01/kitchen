@@ -1,14 +1,22 @@
 import React, {Component} from 'react';
+import {Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import classNames from 'classnames';
+import {History} from 'history';
+import {parse, stringify} from 'query-string';
 
 import {stateInterface, filtersInterface} from '../store';
+import {SearchRecipes} from '../store/recipes/actions';
 import KtnRangeCalories from '../components/Range-calories';
 
+interface MainSearchPropsInterface extends stateInterface {
+    history: History,
+    dispatch: Dispatch
+}
 
-class MainSearch extends Component<stateInterface, filtersInterface> {
+class MainSearch extends Component<MainSearchPropsInterface, filtersInterface> {
 
-    constructor(props: stateInterface) {
+    constructor(props: MainSearchPropsInterface) {
         super(props);
         this.state = {
             withoutMeat: this.props.filters.withoutMeat,
@@ -16,6 +24,10 @@ class MainSearch extends Component<stateInterface, filtersInterface> {
             isDietary: this.props.filters.isDietary,
             dukanDiet: this.props.filters.dukanDiet
         }
+    }
+
+    componentDidMount() {
+        this.refreshList();
     }
 
     public isOnFilter(value: boolean): string {
@@ -29,13 +41,34 @@ class MainSearch extends Component<stateInterface, filtersInterface> {
     }
 
     public onChangeFilter(name: string): (event: React.MouseEvent<HTMLElement>) => void {
-        return (event: React.MouseEvent<HTMLElement>) => {
-            const value = !(this.state[name]);
+        return (event: React.MouseEvent<HTMLElement>) => this.refreshList(name)
+    }
+
+    private refreshList(name?: string) {
+        const query = {...parse(window.location.search)};
+
+        let value: any;
+
+        if (name) {
+            value = !(this.state[name])
+            if (value) {
+                query[name] = value + '';
+            } else {
+                delete query[name];
+            }
+
             this.setState({
                 ...this.state,
                 [name]: value
             });
         }
+
+        const search = '?' + stringify({
+            ...query
+        });
+
+        this.props.dispatch(SearchRecipes(search));
+        this.props.history.push(search);
     }
 
     public render() {
