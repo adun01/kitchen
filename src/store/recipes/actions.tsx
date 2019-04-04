@@ -1,16 +1,23 @@
-import {SEARCH_RECIPES, REFRESH_RECIPES} from './types';
+import {SEARCH, REFRESH, UPDATE} from './types';
 import {recipeInterface} from '../';
 
-export function SearchRecipes(search: string) {
+export function Search(search: string) {
     return {
-        type: SEARCH_RECIPES,
+        type: SEARCH,
         payload: search
     }
 }
 
-export function RefreshRecipes(recipes: recipeInterface[]) {
+export function Refresh(recipes: recipeInterface[]) {
     return {
-        type: REFRESH_RECIPES,
+        type: REFRESH,
+        payload: recipes
+    }
+}
+
+export function Update(recipes: recipeInterface) {
+    return {
+        type: UPDATE,
         payload: recipes
     }
 }

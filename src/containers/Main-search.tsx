@@ -6,7 +6,7 @@ import {History} from 'history';
 import {parse, stringify} from 'query-string';
 
 import {stateInterface, filtersInterface} from '../store';
-import {SearchRecipes} from '../store/recipes/actions';
+import {Search} from '../store/recipes/actions';
 import KtnRangeCalories from '../components/Range-calories';
 
 interface MainSearchPropsInterface extends stateInterface {
@@ -67,7 +67,7 @@ class MainSearch extends Component<MainSearchPropsInterface, filtersInterface> {
             ...query
         });
 
-        this.props.dispatch(SearchRecipes(search));
+        this.props.dispatch(Search(search));
         this.props.history.push(search);
     }
 
