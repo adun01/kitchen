@@ -1,20 +1,21 @@
 import {Action} from 'redux';
 import {select, call, put, takeLatest, takeEvery} from 'redux-saga/effects'
 
-import {stateInterface, recipeShortInterface, recipeInterface} from '../';
+import {recipeShortInterface, recipeInterface} from '../';
 
-import {SEARCH} from '../recipes/types';
-import {Refresh, Update} from '../recipes/actions';
+import {SEARCH, ONE} from '../recipes/types';
+import {Refresh, Update, One} from '../recipes/actions';
 
 import {ADD, REMOVE} from '../favorites/types';
-import {
-    Add as AddToFavoriteAction,
-    Remove as RemoveToFavoriteAction,
-    Refresh as RefreshFavorites
-} from '../favorites/actions';
+import {Refresh as RefreshFavorites} from '../favorites/actions';
 
 function getRecipes(query: string) {
     return fetch('/api/search' + query)
+        .then(response => response.json());
+}
+
+function oneRecipe(name: string) {
+    return fetch('/api/recipes/' + name)
         .then(response => response.json());
 }
 
@@ -37,6 +38,17 @@ function* SearchRecipes(action: actionSearchInterface) {
     });
 
     yield put(Refresh(recipes));
+}
+
+export interface actionOneInterface extends Action {
+    payload: string
+}
+
+function* OneRecipe(action: actionOneInterface) {
+    const recipe = yield call(oneRecipe, action.payload);
+    const state = yield select();
+    state.recipes.push(recipe);
+    yield put(Refresh([...state.recipes]));
 }
 
 function getFavoritesFromLocationStore(): recipeShortInterface[] {
@@ -78,6 +90,7 @@ function* RemoveToFavorite(action: actionFavoriteActionInterface) {
 
 function* rootSaga() {
     yield takeLatest(SEARCH, SearchRecipes);
+    yield takeEvery(ONE, OneRecipe);
     yield takeEvery(ADD, AddToFavorite);
     yield takeEvery(REMOVE, RemoveToFavorite);
 }

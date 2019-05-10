@@ -7,7 +7,7 @@ module.exports = {
         path: path.resolve('../', 'kitchen-serv/public/js')
     },
     resolve: {
-        extensions: ['.tsx', '.js', '.jsx', '.jpg']
+        extensions: ['.tsx', '.js', '.jsx', '.jpg', '.svg']
     },
     module: {
         rules: [

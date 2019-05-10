@@ -1,19 +1,20 @@
-import React, {Component} from 'react';
+import React, {Component, ReactNode} from 'react';
 import {withRouter, RouteComponentProps} from 'react-router';
 
-import Header from './containers/Header';
-import FavoritesList from './containers/Favorites-list';
-import MainSearch from './containers/Main-search';
-import MainGallery from './containers/Main-gallery';
-import FirstDisplay from './components/First-display';
+import MainSearch from '../containers/Main-search';
+import MainGallery from '../containers/Main-gallery';
+import FirstDisplay from './First-display';
 
-class App extends Component<RouteComponentProps> {
-    render() {
+/**
+ * Main page
+ */
+class KtnSearch extends Component<RouteComponentProps> {
+    render(): ReactNode {
         return (
             <div>
-                <Header></Header>
                 <FirstDisplay></FirstDisplay>
-                <div className="container-fluid" id="main-container">
+                <div id="main-container"
+                     className="container-fluid">
                     <div className="row">
                         <div className="col-8">
                             <MainGallery></MainGallery>
@@ -21,7 +22,7 @@ class App extends Component<RouteComponentProps> {
                         <div className="col-4">
                             <div className="bg-light">
                                 <MainSearch history={this.props.history}></MainSearch>
-                                <FavoritesList></FavoritesList>
+                                {/*<FavoritesList></FavoritesList>*/}
                             </div>
                         </div>
                     </div>
@@ -31,4 +32,4 @@ class App extends Component<RouteComponentProps> {
     }
 }
 
-export default withRouter(App);
+export default withRouter(KtnSearch);

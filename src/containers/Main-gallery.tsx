@@ -4,9 +4,9 @@ import {connect} from 'react-redux';
 
 import {recipeInterface, stateInterface} from '../store';
 import {Add, Remove} from '../store/favorites/actions';
-import {FoodSlide} from '../components/Foor-slide/Food-slide';
+import {KtnFoodSlide} from '../components/Foor-slide/Food-slide';
 
-class MainGallery extends Component<{
+class KtnMainGallery extends Component<{
     recipes: recipeInterface[],
     dispatch: Dispatch
 }> {
@@ -33,10 +33,10 @@ class MainGallery extends Component<{
                         <div className="col-4 px-0"
                              key={recipe.id}>
                             <div className="ml-3 mb-3">
-                                <FoodSlide recipe={recipe}
+                                <KtnFoodSlide recipe={recipe}
                                            removeFavorite={() => this.removeFavorite(recipe)}
                                            addFavorite={() => this.addFavorite(recipe)}>
-                                </FoodSlide>
+                                </KtnFoodSlide>
                             </div>
                         </div>
 
@@ -52,4 +52,4 @@ export default connect((state: stateInterface): { recipes: recipeInterface[] } =
     return {
         recipes: state.recipes
     }
-})(MainGallery);
+})(KtnMainGallery);

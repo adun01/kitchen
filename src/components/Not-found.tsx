@@ -1,6 +1,10 @@
-import {Switch, Route, Link} from 'react-router-dom'
+import React from 'react';
+import {Switch, Route, Link} from 'react-router-dom';
 
-export default function NotFound() {
+/**
+ * Component for page 404
+ */
+export default function KtnNotFound() {
     return (
         <div className="row">
             <div className="col-lg-12">

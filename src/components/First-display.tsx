@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Displaing first display in Main page
+ */
 export default () =>
     <div id="first-display"
          className="position-relative d-flex align-items-center justify-content-center"

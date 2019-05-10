@@ -1,0 +1,13 @@
+@import '../../sass/variables.scss';
+
+header {
+  background-color: $bgBackgroundDefaultBlack;
+  .navbar {
+    padding: 0;
+    margin: 0;
+    height: 100px;
+    .navbar-collapse {
+      flex-basis: auto;
+    }
+  }
+}

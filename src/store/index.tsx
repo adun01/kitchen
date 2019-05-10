@@ -25,12 +25,34 @@ export interface recipeShortInterface {
 
 const favorites: recipeShortInterface[] = JSON.parse(localStorage.getItem('favorites') || '[]');
 
+export interface productInterface {
+    id: number,
+    name: string,
+    count: number,
+    unitOfMeasure: string,
+    iconType: number,
+    contains: {
+        protein: number,
+        carbohydrates: number,
+        fat: number,
+    }
+}
+
+export interface step {
+    id: number,
+    description: string,
+    image: string
+}
+
 export interface recipeInterface {
     id: number,
     name: string,
+    url: string,
     description: string,
     image: string,
-    isFavorite: boolean
+    isFavorite: boolean,
+    contains: productInterface[],
+    steps: step[]
 }
 
 export interface stateInterface {
@@ -57,7 +79,7 @@ const initialState: stateInterface = {
     }
 }
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 
 export const store = createStore((state: stateInterface = initialState, action: any): stateInterface => {
     switch (action.type) {

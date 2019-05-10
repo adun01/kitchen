@@ -1,0 +1,38 @@
+@import '../../sass/variables.scss';
+
+.recipe {
+  .screen {
+    height: calc(100vh - 100px);
+    background-position: center center;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    &:after {
+      content: '';
+      background-color: rgba(0, 0, 0, 0.3);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      z-index: 0;
+    }
+  }
+  .description {
+    position: relative;
+    z-index: 1;
+    font-size: 30px;
+    max-width: 80%;
+  }
+  .slider {
+    cursor: pointer;
+    .slide {
+      img {
+        width: 100%;
+        max-width: 150px;
+      }
+    }
+  }
+}

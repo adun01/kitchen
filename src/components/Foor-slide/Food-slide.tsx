@@ -1,30 +1,45 @@
-import React, {Component} from 'react';
+import React, {Component, ReactNode} from 'react';
 import classNames from 'classnames';
+import {Link} from 'react-router-dom';
 
 import {recipeInterface} from '../../store';
 import './Food-slide.scss';
 
-export class FoodSlide extends Component<{
+/**
+ * Displaing food slide
+ */
+export class KtnFoodSlide extends Component<{
     recipe: recipeInterface,
     addFavorite: () => void,
     removeFavorite: () => void
 }> {
 
+    /**
+     * adding or removing item from favorites
+     */
     public actionForFavorite(event: React.MouseEvent<HTMLElement>): void {
         event.preventDefault();
         this.props.recipe.isFavorite ? this.props.removeFavorite() : this.props.addFavorite();
     }
 
-    render() {
+    /**
+     * getting class for icon
+     */
+    public getClassesForIcon(): string {
+        return classNames({
+            'fa-heart': !this.props.recipe.isFavorite,
+            'fa-trash remove': this.props.recipe.isFavorite,
+            'fa': true,
+            'actions-favotire': true
+        })
+    }
+
+    public render(): ReactNode {
         return (
-            <a className="card text-white food-slide"
-               href="#">
-                <i className={classNames({
-                       'fa-heart': !this.props.recipe.isFavorite,
-                       'fa-trash remove': this.props.recipe.isFavorite,
-                       'fa': true,
-                       'actions-favotire': true
-                   })}
+
+            <Link className="card text-white food-slide"
+                  to={'/recipe/' + this.props.recipe.url}>
+                <i className={this.getClassesForIcon()}
                    onClick={(event: React.MouseEvent<HTMLElement>) => this.actionForFavorite(event)}></i>
                 <img className="card-img-top"
                      src={this.props.recipe.image}
@@ -37,7 +52,7 @@ export class FoodSlide extends Component<{
                         {this.props.recipe.description}
                     </p>
                 </span>
-            </a>
+            </Link>
         )
     }
 }
