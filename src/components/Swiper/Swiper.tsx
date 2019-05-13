@@ -8,6 +8,7 @@ interface Props {
     config: {
         slidesPerView: number
     },
+    onAfterInit: (swiper: Swiper) => void,
     data: any[]
 }
 
@@ -44,6 +45,7 @@ export default class KtnSwiper extends Component<Props, {
                 }
             },
         });
+        this.props.onAfterInit(swiper);
     }
 
     render(): ReactNode {

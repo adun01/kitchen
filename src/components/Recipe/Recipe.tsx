@@ -2,6 +2,8 @@ import React, {Component, ReactNode} from 'react';
 import {Range} from 'react-input-range';
 import {StickyContainer, Sticky} from 'react-sticky';
 import classNames from 'classnames';
+import VisibilitySensor from 'react-visibility-sensor';
+import Swiper from 'swiper';
 
 import {recipeInterface, productInterface, step} from '../../store';
 import './Recipe.scss';
@@ -28,9 +30,14 @@ function slideRender(data: { product: productInterface }): ReactNode {
     )
 }
 
+interface KtnRecipeStateInterface extends Range {
+    swiper: Swiper | null,
+    wasNextSlide: boolean
+}
+
 export default class KtnRecipe extends Component<{
     recipe: recipeInterface
-}, Range> {
+}, KtnRecipeStateInterface> {
 
     constructor(props: {
         recipe: recipeInterface
@@ -47,11 +54,15 @@ export default class KtnRecipe extends Component<{
             carbohydrates: 0,
             fat: 0
         });
+
         const oneProcent = (totalContains.protein + totalContains.carbohydrates + totalContains.fat) / 100,
             proteins = +parseFloat(totalContains.protein / oneProcent + '').toFixed();
+
         this.state = {
             min: proteins,
-            max: proteins + Number((totalContains.carbohydrates / oneProcent).toFixed())
+            max: proteins + Number((totalContains.carbohydrates / oneProcent).toFixed()),
+            swiper: null,
+            wasNextSlide: false
         };
     }
 
@@ -64,7 +75,28 @@ export default class KtnRecipe extends Component<{
             'vh-100': isSticky,
             'align-items-center': true,
             'd-flex': true
-        })
+        });
+    }
+
+    public onChange(value: boolean): void {
+        if (value) {
+            if (!this.state.wasNextSlide) {
+                setTimeout(() => {
+                    this.state.swiper && this.state.swiper.slideNext();
+                    this.setState({
+                        ...this.state,
+                        wasNextSlide: true
+                    });
+                });
+            }
+        }
+    }
+
+    public onAfterInitSwiper(swiper: Swiper) {
+        this.setState({
+            ...this.state,
+            swiper: swiper
+        });
     }
 
     render(): ReactNode {
@@ -81,11 +113,14 @@ export default class KtnRecipe extends Component<{
                     <div className="row d-flex">
                         <div className="col-8">
                             <div className="slider my-5">
-                                <KtnSwiper slideRender={slideRender}
-                                           config={{
-                                               slidesPerView: 3
-                                           }}
-                                           data={this.props.recipe.contains}></KtnSwiper>
+                                <VisibilitySensor onChange={this.onChange.bind(this)}>
+                                    <KtnSwiper slideRender={slideRender}
+                                               config={{
+                                                   slidesPerView: 3
+                                               }}
+                                               onAfterInit={this.onAfterInitSwiper.bind(this)}
+                                               data={this.props.recipe.contains}></KtnSwiper>
+                                </VisibilitySensor>
                             </div>
                             {this.props.recipe.steps.map((step: step, index: number) => {
                                 return (
