@@ -1,30 +1,31 @@
-import {SEARCH, REFRESH, UPDATE, ONE} from './types';
-import {recipeInterface} from '../';
+import {LIST_SEARCH, LIST_SUCCESS, ONE_GET, ONE_SUCCESS} from './types';
 
-export function Search(search: string) {
+import {KtnRecipeModel} from '../../models/recipe';
+
+export function GetList(search: string) {
     return {
-        type: SEARCH,
+        type: LIST_SEARCH,
         payload: search
     }
 }
 
-export function Refresh(recipes: recipeInterface[]) {
+export function ListSuccess(recipes: KtnRecipeModel[]) {
     return {
-        type: REFRESH,
+        type: LIST_SUCCESS,
         payload: recipes
     }
 }
 
-export function Update(recipes: recipeInterface) {
+export function GetOne(url: string) {
     return {
-        type: UPDATE,
-        payload: recipes
-    }
-}
-
-export function One(url: string) {
-    return {
-        type: ONE,
+        type: ONE_GET,
         payload: url
+    }
+}
+
+export function SuccessOne(recipe: KtnRecipeModel) {
+    return {
+        type: ONE_SUCCESS,
+        payload: recipe
     }
 }

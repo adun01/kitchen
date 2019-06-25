@@ -2,6 +2,9 @@ import React, {Component, ReactNode} from 'react';
 import InputRange, {Range} from 'react-input-range';
 import 'react-input-range/lib/css/index.css';
 import classNames from 'classnames';
+import {Subscription} from 'rxjs';
+
+import {KtnFiltersModel} from '../models/filters';
 
 interface caloriesInterface {
     proteins: number,
@@ -11,18 +14,22 @@ interface caloriesInterface {
 
 let numberCallRender: number = 0;
 
-/**
- * Displaing Filter by type calories
- */
-export default class KtnRangeCalories extends Component<{
-    query: Range,
-    forRecipe?: boolean
-}, {
+interface KtnRangeCaloriesState {
     min: number,
     max: number,
     calories: caloriesInterface,
-    isFat: boolean
-}> {
+    isFat: boolean,
+    sub$: Subscription | null
+}
+
+interface KtnRangeCaloriesProps {
+    forRecipe: boolean
+}
+
+/**
+ * Displaing Filter by type calories
+ */
+export default class KtnRangeCalories extends Component<KtnRangeCaloriesProps, KtnRangeCaloriesState> {
 
     /**
      * Return class for fat food
@@ -33,14 +40,34 @@ export default class KtnRangeCalories extends Component<{
         });
     }
 
-    constructor(props: { query: Range }) {
+    constructor(props: KtnRangeCaloriesProps) {
         super(props);
         this.state = {
-            min: this.props.query.min,
-            max: this.props.query.max,
+            min: 0,
+            max: 0,
             calories: this.getCalories(),
-            isFat: false
+            isFat: false,
+            sub$: null
         };
+    }
+
+    componentDidMount() {
+        const subscribtion = KtnFiltersModel
+            .getState$()
+            .subscribe((filter: KtnFiltersModel) => {
+                this.setState((state: KtnRangeCaloriesState, props: KtnRangeCaloriesProps): KtnRangeCaloriesState => ({
+                        min: filter.min,
+                        max: filter.max,
+                        calories: this.getCalories(),
+                        isFat: false,
+                        sub$: null
+                    }
+                ));
+            });
+    }
+
+    componentWillUnmount() {
+        this.state.sub$ && this.state.sub$.unsubscribe();
     }
 
     /**
@@ -70,13 +97,14 @@ export default class KtnRangeCalories extends Component<{
      */
     public onUpdateState(params: Range | number): void {
         if (typeof params === 'object') {
-            this.setState({
-                ...this.state,
-                min: params.min,
-                max: params.max,
-                calories: this.getCalories(),
-                isFat: this.isFat()
-            });
+            this.setState((prevState: KtnRangeCaloriesState, props: KtnRangeCaloriesProps): KtnRangeCaloriesState => ({
+                    ...this.state,
+                    min: params.min,
+                    max: params.max,
+                    calories: this.getCalories(),
+                    isFat: this.isFat()
+                }
+            ));
         }
     }
 
@@ -84,8 +112,7 @@ export default class KtnRangeCalories extends Component<{
      * Checking fat food or easy
      */
     private isFat(): boolean {
-        const carbohydrates = this.state ? this.state.max : this.props.query.max;
-        return carbohydrates <= 50;
+        return this.state ? this.state.max <= 50 : false;
     }
 
     /**
@@ -103,25 +130,21 @@ export default class KtnRangeCalories extends Component<{
      * getting calories from proteints
      */
     private getProteins(): number {
-        const proteins = this.state ? this.state.min : this.props.query.min;
-        return proteins * 4;
+        return this.state ? this.state.min * 4 : 0;
     }
 
     /**
      * getting calories from carbohydrates
      */
     private getCarbohydrates(): number {
-        const proteins = this.getProteins() / 4;
-        const carbohydrates = this.state ? this.state.max : this.props.query.max;
-        return (carbohydrates - proteins) * 4;
+        return this.state ? (this.state.max - this.state.min) * 4 : 0;
     }
 
     /**
      * getting calories from fats
      */
     private getFats(): number {
-        const carbohydrates = this.state ? this.state.max : this.props.query.max;
-        const fats = (100 - carbohydrates) * 9;
+        const fats = (100 - (this.state ? this.state.max : 0)) * 9;
         return Number(fats.toFixed());
     }
 
@@ -149,14 +172,15 @@ export default class KtnRangeCalories extends Component<{
                     <tbody>
                     <tr>
                         <td scope="row">Грамм</td>
-                        <td>{this.state.calories.proteins / 4}</td>
-                        <td>{this.state.calories.carbohydrates / 4}</td>
-                        <td className={this.isDangerClassName()}>{(this.state.calories.fats / 9).toFixed()}</td>
+                        <td>{this.state && this.state.calories ? this.state.calories.proteins / 4 : 0}</td>
+                        {/*<td>{this.state ? this.state.calories.carbohydrates : 0 / 4}</td>
+                        */}{/*<td className={this.isDangerClassName()}>{(this.state ? this.state.calories.fats : 0 / 9).toFixed()}</td>
+                        */}
                         <th scope="row">
                             100
                         </th>
                     </tr>
-                    <tr>
+                    {/*<tr>
                         <td scope="row">Калорий</td>
                         <td>{this.state.calories.proteins}</td>
                         <td>{this.state.calories.carbohydrates}</td>
@@ -164,23 +188,23 @@ export default class KtnRangeCalories extends Component<{
                         <th scope="row">
                             {this.getTotal()}
                         </th>
-                    </tr>
+                    </tr>*/}
                     </tbody>
                 </table>
-                {!this.props.forRecipe && <sup className="text-warning">*(на 100 грамм продукта)</sup>}
-                <div className="form-row my-4">
+                {!this.props.forRecipe ? <sup className="text-warning">*(на 100 грамм продукта)</sup> : ''}
+                {/*<div className="form-row my-4">
                     <div className="col-12">
                         <InputRange
                             formatLabel={this.getFormatLabel}
                             maxValue={100}
                             minValue={0}
                             value={{
-                                min: this.state.min,
-                                max: this.state.max
+                                min: this.state.min || 0,
+                                max: this.state.max || 0
                             }}
                             onChange={value => this.onUpdateState(value)}/>
                     </div>
-                </div>
+                </div>*/}
             </div>
         )
     }

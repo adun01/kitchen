@@ -1,115 +1,65 @@
 import {createStore, applyMiddleware} from 'redux';
-import {Range} from 'react-input-range';
-import {parse} from 'query-string';
+import {fork, all} from 'redux-saga/effects';
 import createSagaMiddleware from 'redux-saga';
 
-import rootSaga from './sagas';
-import {REFRESH, UPDATE} from './recipes/types';
-import {Refresh} from './recipes/actions';
+import {KtnActivaterModel} from '../models';
 
-import {REFRESH as REFRESH_FAVORITES} from './favorites/types';
+import {KtnRecipeStore} from './recipes/';
+import {KtnFavoritesStore} from './favorites/';
+import {KtnFiltersStore} from './filters/';
+import {KtnRecipeReducer} from './recipes/reducer';
+import {KtnFavoriteReducer} from './favorites/reducer';
 
-export interface filtersInterface {
-    withoutMeat: boolean,
-    onlyFresh: boolean,
-    isDietary: boolean,
-    dukanDiet: boolean,
+import {LIST_SUCCESS} from './recipes/types';
 
-    [key: string]: boolean
-}
-
-export interface recipeShortInterface {
-    name: string,
-    id: number
-}
-
-const favorites: recipeShortInterface[] = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-export interface productInterface {
-    id: number,
-    name: string,
-    count: number,
-    unitOfMeasure: string,
-    iconType: number,
-    contains: {
-        protein: number,
-        carbohydrates: number,
-        fat: number,
-    }
-}
-
-export interface step {
-    id: number,
-    description: string,
-    image: string
-}
-
-export interface recipeInterface {
-    id: number,
-    name: string,
-    url: string,
-    description: string,
-    image: string,
-    isFavorite: boolean,
-    contains: productInterface[],
-    steps: step[]
-}
-
-export interface stateInterface {
-    favorites: recipeShortInterface[],
-    recipes: recipeInterface[],
-    query: Range,
-    filters: filtersInterface
-}
-
-const {min, max, withoutMeat, onlyFresh, isDietary, dukanDiet} = parse(window.location.search);
-
-const initialState: stateInterface = {
-    favorites: favorites,
-    recipes: [],
-    query: {
-        min: min ? +min : 30,
-        max: max ? +max : 40
-    },
-    filters: {
-        withoutMeat: Boolean(withoutMeat),
-        onlyFresh: Boolean(onlyFresh),
-        isDietary: Boolean(isDietary),
-        dukanDiet: Boolean(dukanDiet)
-    }
-}
+import {recipeSaga} from './recipes/saga';
+import {favoriteSaga} from './favorites/saga';
 
 const sagaMiddleware = createSagaMiddleware();
 
-export const store = createStore((state: stateInterface = initialState, action: any): stateInterface => {
+export class KtnCommonStore {
+    public recipes: KtnRecipeStore;
+    public favorites: KtnFavoritesStore;
+    public filters: KtnFiltersStore;
+
+    constructor(recipes: KtnRecipeStore,
+                favorites: KtnFavoritesStore,
+                filters: KtnFiltersStore) {
+        this.recipes = recipes;
+        this.favorites = favorites;
+        this.filters = filters;
+    }
+}
+
+export const store = createStore((state: KtnCommonStore = new KtnCommonStore(
+    new KtnRecipeStore,
+    new KtnFavoritesStore,
+    new KtnFiltersStore), action: any): KtnCommonStore => {
     switch (action.type) {
-        case UPDATE:
+        case LIST_SUCCESS:
             return {
                 ...state,
-                recipes: state.recipes.map((recipe: recipeInterface): recipeInterface => {
-                    if (action.payload.id === recipe.id) {
-                        return action.payload;
-                    }
-                    return recipe;
-                })
-            };
+                recipes: KtnRecipeReducer(state.recipes, action)
+            }
             break;
-        case REFRESH:
-            return {
-                ...state,
-                recipes: action.payload
-            };
-            break;
-        case REFRESH_FAVORITES:
-            return {
-                ...state,
-                favorites: action.payload
-            };
-            break;
+        /*case REFRESH_FAVORITES:
+            //KtnFavoriteReducer
+            return state;
+            break;*/
         default:
             return state;
             break;
 
     }
 }, applyMiddleware(sagaMiddleware));
+
+KtnActivaterModel(store);
+
+function* rootSaga() {
+    yield all([
+        fork(recipeSaga),
+        fork(favoriteSaga),
+    ]);
+}
+
 sagaMiddleware.run(rootSaga);

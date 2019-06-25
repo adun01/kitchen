@@ -6,7 +6,7 @@ import {Switch, Route} from 'react-router-dom'
 
 import HocForRecipe from './containers/hoc/HocForRecipe';
 
-import Header from './containers/Header/Header';
+import {KtnHeader} from './containers/Header/Header';
 import Search from './components/Search';
 import KtnNotFound from './components/Not-found';
 import {store} from './store';
@@ -15,7 +15,7 @@ import './sass/main.scss';
 ReactDOM.render(
     <Provider store={store}>
         <BrowserRouter>
-            <Header></Header>
+            <KtnHeader></KtnHeader>
             <Switch>
                 <Route exact path='/' component={Search}/>
                 <Route path='/recipe/:name' component={HocForRecipe}/>

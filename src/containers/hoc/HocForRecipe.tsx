@@ -3,8 +3,9 @@ import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {withRouter, RouteComponentProps, match} from 'react-router';
 
-import {stateInterface, recipeInterface} from '../../store';
-import {One} from '../../store/recipes/actions';
+import {KtnRecipeModel, KtnRecipeShortModel} from '../../models/recipe';
+import {KtnCommonStore} from '../../store/';
+import {GetOne} from '../../store/recipes/actions';
 import KtnRecipe from '../../components/Recipe/Recipe';
 
 interface Props extends RouteComponentProps {
@@ -12,14 +13,15 @@ interface Props extends RouteComponentProps {
     match: match<{
         name: string
     }>,
-    recipes: recipeInterface[]
+    fullList: KtnRecipeModel[],
+    shortList: KtnRecipeShortModel[]
 }
 
 /**
  * HOC for component Recipe
  */
 class KtnHocForRecipe extends Component<Props, {
-    recipe: recipeInterface | undefined
+    recipe: KtnRecipeModel | undefined
 }> {
 
     constructor(props: Props) {
@@ -33,9 +35,9 @@ class KtnHocForRecipe extends Component<Props, {
      * Search for recipe by = url: string (from url state)
      */
     static getDerivedStateFromProps(props: Props, state: any) {
-        const recipe: undefined | recipeInterface = props.recipes.find((recipe: recipeInterface): boolean => recipe.url === props.match.params.name);
+        const recipe: undefined | KtnRecipeModel = props.fullList.find((recipe: KtnRecipeModel): boolean => recipe.url === props.match.params.name);
         if (!recipe) {
-            props.dispatch(One(props.match.params.name));
+            props.dispatch(GetOne(props.match.params.name));
         } else {
             return {
                 recipe: recipe
@@ -53,6 +55,12 @@ class KtnHocForRecipe extends Component<Props, {
     }
 }
 
-export default withRouter(connect((state: stateInterface): { recipes: recipeInterface[] } => {
-    return {recipes: state.recipes};
+export default withRouter(connect((state: KtnCommonStore): {
+    fullList: KtnRecipeModel[],
+    shortList: KtnRecipeShortModel[]
+} => {
+    return {
+        fullList: state.recipes.fullList,
+        shortList: state.recipes.shortList
+    }
 })(KtnHocForRecipe));

@@ -4,18 +4,13 @@ import {connect} from 'react-redux';
 import {History} from 'history';
 import {parse, stringify} from 'query-string';
 
-import {stateInterface} from '../store';
-import {Search} from '../store/recipes/actions';
+import {KtnCommonStore} from '../store';
 import KtnRangeCalories from '../components/Range-calories';
 import KtnFilterList from './Filters-list';
 
-interface KtnMainSearchPropsInterface extends stateInterface {
-    history: History,
-    dispatch: Dispatch
-}
-
-class KtnMainSearch extends Component<KtnMainSearchPropsInterface> {
-
+export class KtnMainSearch extends Component<{
+    history: History
+}> {
 
     public render() {
         return (
@@ -37,12 +32,10 @@ class KtnMainSearch extends Component<KtnMainSearchPropsInterface> {
                     </div>
                 </div>
                 <div className="my-5">
-                    <KtnRangeCalories query={this.props.query}></KtnRangeCalories>
-                    <KtnFilterList></KtnFilterList>
+                    <KtnRangeCalories forRecipe={false}></KtnRangeCalories>
+                    {/*<KtnFilterList></KtnFilterList>*/}
                 </div>
             </form>
         )
     }
 }
-
-export default connect((state: stateInterface): stateInterface => state)(KtnMainSearch);

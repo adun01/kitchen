@@ -5,7 +5,8 @@ import classNames from 'classnames';
 import VisibilitySensor from 'react-visibility-sensor';
 import Swiper from 'swiper';
 
-import {recipeInterface, productInterface, step} from '../../store';
+import {KtnRecipeModel, KtnStepModel} from '../../models/recipe';
+import {KtnProductModel} from '../../models/product';
 import './Recipe.scss';
 import KtnSwiper from '../Swiper/Swiper';
 import KtnTypeFoodImage from '../Type-food-image/Type-food-image';
@@ -14,7 +15,7 @@ import KtnRangeCalories from '../Range-calories';
 /**
  * For displaing slide
  */
-function slideRender(data: { product: productInterface }): ReactNode {
+function slideRender(data: { product: KtnProductModel }): ReactNode {
     return (
         <div>
             <div className="slide align-items-center d-flex flex-column-reverse justify-content-around text-center">
@@ -36,14 +37,14 @@ interface KtnRecipeStateInterface extends Range {
 }
 
 export default class KtnRecipe extends Component<{
-    recipe: recipeInterface
+    recipe: KtnRecipeModel
 }, KtnRecipeStateInterface> {
 
     constructor(props: {
-        recipe: recipeInterface
+        recipe: KtnRecipeModel
     }) {
         super(props);
-        const totalContains = this.props.recipe.contains.reduce((prev, product: productInterface) => {
+        const totalContains = this.props.recipe.contains.reduce((prev, product: KtnProductModel) => {
             return {
                 protein: prev.protein + this._prepareNumber(product.contains.protein),
                 carbohydrates: prev.carbohydrates + this._prepareNumber(product.contains.carbohydrates),
@@ -109,8 +110,8 @@ export default class KtnRecipe extends Component<{
                         {this.props.recipe.description}
                     </div>
                 </div>
-                <div className="container-fluid">
-                    <div className="row d-flex">
+                <div>
+                    <div className="d-flex">
                         <div className="col-8">
                             <div className="slider my-5">
                                 <VisibilitySensor onChange={this.onChange.bind(this)}>
@@ -122,7 +123,7 @@ export default class KtnRecipe extends Component<{
                                                data={this.props.recipe.contains}></KtnSwiper>
                                 </VisibilitySensor>
                             </div>
-                            {this.props.recipe.steps.map((step: step, index: number) => {
+                            {this.props.recipe.steps.map((step: KtnStepModel, index: number) => {
                                 return (
                                     <div className="d-flex p-5"
                                          key={step.id}>
@@ -151,8 +152,8 @@ export default class KtnRecipe extends Component<{
                                       }) => (
                                         <div style={{...style}}>
                                             <div className={this.getClassesForSticky(isSticky)}>
-                                                <KtnRangeCalories query={this.state}
-                                                                  forRecipe={true}></KtnRangeCalories>
+                                                {/*<KtnRangeCalories query={this.state}
+                                                                  forRecipe={true}></KtnRangeCalories>*/}
                                             </div>
                                         </div>
                                     )}

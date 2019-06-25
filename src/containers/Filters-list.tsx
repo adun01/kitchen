@@ -5,10 +5,11 @@ import {withRouter, RouteComponentProps} from 'react-router';
 import classNames from 'classnames';
 import {parse, stringify} from 'query-string';
 
-import {stateInterface, filtersInterface} from '../store';
-import {Search} from '../store/recipes/actions';
+import {KtnCommonStore} from '../store/';
+import {KtnFiltersModel} from '../models/filters';
+import {GetList} from '../store/recipes/actions';
 
-interface FavoritesListPropsInterface extends stateInterface, RouteComponentProps {
+interface FavoritesListPropsInterface extends KtnCommonStore, RouteComponentProps {
     dispatch: Dispatch
 }
 
@@ -25,25 +26,20 @@ const dictionary: {
     dukanDiet: 'диета Дюкана'
 };
 
-class KtnFilterList extends Component<FavoritesListPropsInterface, filtersInterface> {
+class KtnFilterList extends Component<FavoritesListPropsInterface, KtnFiltersModel> {
 
     constructor(props: FavoritesListPropsInterface) {
         super(props);
-        this.state = {
-            withoutMeat: this.props.filters.withoutMeat,
-            onlyFresh: this.props.filters.onlyFresh,
-            isDietary: this.props.filters.isDietary,
-            dukanDiet: this.props.filters.dukanDiet
-        }
+        this.state = {...this.props.filters};
     }
 
     /**
      * returning classes for badge
      */
-    public getClassesForBadge(value: string): string {
+    public getClassesForBadge(value: boolean): string {
         return classNames({
-            'badge-primary': this.state[value],
-            'badge-secondary': !this.state[value],
+            'badge-primary': value,
+            'badge-secondary': !value,
             'badge-pill': true,
             pointer: true,
             bagde: true
@@ -64,7 +60,7 @@ class KtnFilterList extends Component<FavoritesListPropsInterface, filtersInterf
         let value: any;
 
         if (name) {
-            value = !(this.state[name])
+            value = !Boolean((this.state[name]))
             if (value) {
                 query[name] = value + '';
             } else {
@@ -81,7 +77,7 @@ class KtnFilterList extends Component<FavoritesListPropsInterface, filtersInterf
             ...query
         });
 
-        this.props.dispatch(Search(search));
+        this.props.dispatch(GetList(search));
         this.props.history.push(search);
     }
 
@@ -89,9 +85,10 @@ class KtnFilterList extends Component<FavoritesListPropsInterface, filtersInterf
         return (
             <div>
                 {Object.keys(this.state).map((name: string, index: number): ReactNode => {
+                    const value: boolean = !!(this.state[name]);
                     return (
                         <h5 className="d-inline-block mr-3" key={index}>
-                            <span className={this.getClassesForBadge(name)}
+                            <span className={this.getClassesForBadge(value)}
                                   onClick={this.onChangeFilter(name)}>
                                 {dictionary[name]}
                             </span>
@@ -103,4 +100,4 @@ class KtnFilterList extends Component<FavoritesListPropsInterface, filtersInterf
     }
 }
 
-export default connect((state: stateInterface): stateInterface => state)(withRouter(KtnFilterList));
+export default connect((state: KtnCommonStore): KtnCommonStore => state)(withRouter(KtnFilterList));

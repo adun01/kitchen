@@ -1,8 +1,8 @@
 import React, {Component, ReactNode} from 'react';
 import {withRouter, RouteComponentProps} from 'react-router';
 
-import MainSearch from '../containers/Main-search';
-import MainGallery from '../containers/Main-gallery';
+import {KtnMainSearch} from '../containers/Main-search';
+import {KtnMainGallery} from '../containers/Main-gallery';
 import FirstDisplay from './First-display';
 
 /**
@@ -17,11 +17,11 @@ class KtnSearch extends Component<RouteComponentProps> {
                      className="container-fluid">
                     <div className="row">
                         <div className="col-8">
-                            <MainGallery></MainGallery>
+                            <KtnMainGallery></KtnMainGallery>
                         </div>
                         <div className="col-4">
                             <div className="bg-light">
-                                <MainSearch history={this.props.history}></MainSearch>
+                                <KtnMainSearch history={this.props.history}></KtnMainSearch>
                                 {/*<FavoritesList></FavoritesList>*/}
                             </div>
                         </div>

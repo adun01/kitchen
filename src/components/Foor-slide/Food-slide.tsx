@@ -2,26 +2,15 @@ import React, {Component, ReactNode} from 'react';
 import classNames from 'classnames';
 import {Link} from 'react-router-dom';
 
-import {recipeInterface} from '../../store';
+import {KtnRecipeShortModel} from '../../models/recipe';
 import './Food-slide.scss';
 
 /**
  * Displaing food slide
  */
 export class KtnFoodSlide extends Component<{
-    recipe: recipeInterface,
-    addFavorite: () => void,
-    removeFavorite: () => void
+    recipe: KtnRecipeShortModel
 }> {
-
-    /**
-     * adding or removing item from favorites
-     */
-    public actionForFavorite(event: React.MouseEvent<HTMLElement>): void {
-        event.preventDefault();
-        this.props.recipe.isFavorite ? this.props.removeFavorite() : this.props.addFavorite();
-    }
-
     /**
      * getting class for icon
      */
@@ -40,7 +29,10 @@ export class KtnFoodSlide extends Component<{
             <Link className="card text-white food-slide"
                   to={'/recipe/' + this.props.recipe.url}>
                 <i className={this.getClassesForIcon()}
-                   onClick={(event: React.MouseEvent<HTMLElement>) => this.actionForFavorite(event)}></i>
+                   onClick={(event: React.MouseEvent<HTMLElement>) => {
+                       event.preventDefault();
+                       this.props.recipe.onToggleIsFavorite()
+                   }}></i>
                 <img className="card-img-top"
                      src={this.props.recipe.image}
                      alt={this.props.recipe.name}></img>
