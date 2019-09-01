@@ -1,129 +1,80 @@
-import React, {Component, ReactNode} from 'react';
-import {Range} from 'react-input-range';
+import React, {ReactNode, RefObject, useEffect, useState} from 'react';
 import {StickyContainer, Sticky} from 'react-sticky';
-import classNames from 'classnames';
 import VisibilitySensor from 'react-visibility-sensor';
-import Swiper from 'swiper';
 
-import {KtnRecipeModel, KtnStepModel} from '../../models/recipe';
+import {KtnRecipeModel} from '../../models/recipe';
+import {KtnStepModel} from '../../models/step';
 import {KtnProductModel} from '../../models/product';
 import './Recipe.scss';
 import KtnSwiper from '../Swiper/Swiper';
-import KtnTypeFoodImage from '../Type-food-image/Type-food-image';
-import KtnRangeCalories from '../Range-calories';
+import {KtnTypeFoodImage} from '../Type-food-image/Type-food-image';
+import {KtnRangeCalories} from '../Range-calories';
+import {withRouter} from "react-router";
+import {getUnsubscribe} from "../../utils";
 
 /**
  * For displaing slide
  */
-function slideRender(data: { product: KtnProductModel }): ReactNode {
+function typeFood(data: { product: KtnProductModel }): ReactNode {
     return (
         <div>
             <div className="slide align-items-center d-flex flex-column-reverse justify-content-around text-center">
                 <div className="text-black-50 mt-2">
                     <h4>{data.product.name}</h4>
-                    <h6>{data.product.count + ' ' + data.product.unitOfMeasure}</h6>
+                    {data.product.count && <h6>{data.product.count + ' ' + data.product.unitOfMeasure}</h6>}
                 </div>
                 <div className="text-center">
-                    <KtnTypeFoodImage type={data.product.iconType}></KtnTypeFoodImage>
+                    {KtnTypeFoodImage(data.product)}
                 </div>
             </div>
         </div>
     )
 }
 
-interface KtnRecipeStateInterface extends Range {
-    swiper: Swiper | null,
-    wasNextSlide: boolean
-}
+const getNameFromUrl = (path: string): string => path.split('/')[2];
 
-export default class KtnRecipe extends Component<{
-    recipe: KtnRecipeModel
-}, KtnRecipeStateInterface> {
+const options = {
+    slidesPerView: 3
+};
 
-    constructor(props: {
-        recipe: KtnRecipeModel
-    }) {
-        super(props);
-        const totalContains = this.props.recipe.contains.reduce((prev, product: KtnProductModel) => {
-            return {
-                protein: prev.protein + this._prepareNumber(product.contains.protein),
-                carbohydrates: prev.carbohydrates + this._prepareNumber(product.contains.carbohydrates),
-                fat: prev.fat + this._prepareNumber(product.contains.fat)
-            }
-        }, {
-            protein: 0,
-            carbohydrates: 0,
-            fat: 0
-        });
+export const KtnRecipe = withRouter(({location: {pathname}}) => {
 
-        const oneProcent = (totalContains.protein + totalContains.carbohydrates + totalContains.fat) / 100,
-            proteins = +parseFloat(totalContains.protein / oneProcent + '').toFixed();
+    const [recipe, setRecipe] = useState<KtnRecipeModel>();
+    const childRef: RefObject<KtnSwiper> = React.createRef();
 
-        this.state = {
-            min: proteins,
-            max: proteins + Number((totalContains.carbohydrates / oneProcent).toFixed()),
-            swiper: null,
-            wasNextSlide: false
-        };
-    }
+    let wasNextSlide: boolean = false;
 
-    private _prepareNumber(value: number): number {
-        return parseInt(value * 100 + '');
-    }
-
-    public getClassesForSticky(isSticky: boolean) {
-        return classNames({
-            'vh-100': isSticky,
-            'align-items-center': true,
-            'd-flex': true
-        });
-    }
-
-    public onChange(value: boolean): void {
-        if (value) {
-            if (!this.state.wasNextSlide) {
-                setTimeout(() => {
-                    this.state.swiper && this.state.swiper.slideNext();
-                    this.setState({
-                        ...this.state,
-                        wasNextSlide: true
-                    });
-                });
-            }
+    const goNextSlide = (value: boolean): void => {
+        if (!wasNextSlide && value && childRef.current) {
+            wasNextSlide = true;
+            childRef.current.nextSlide();
         }
-    }
+    };
 
-    public onAfterInitSwiper(swiper: Swiper) {
-        this.setState({
-            ...this.state,
-            swiper: swiper
-        });
-    }
+    useEffect((): () => void => getUnsubscribe(KtnRecipeModel.getOne$(getNameFromUrl(pathname))
+        .subscribe((recipe: KtnRecipeModel | undefined): void => setRecipe(recipe))), []);
 
-    render(): ReactNode {
-        return (
-            <div className="recipe">
-                <div className="screen" style={{
-                    backgroundImage: 'url(' + this.props.recipe.image + ')'
-                }}>
-                    <div className="description">
-                        {this.props.recipe.description}
+    return (
+        <div className="recipe row">
+            {recipe && (
+                <div className="col-12">
+                    <div className="screen row" style={{backgroundImage: 'url(' + recipe.image + ')'}}>
+                        <div className="description">
+                            {recipe.description}
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div className="d-flex">
+                    <div className="row">
                         <div className="col-8">
-                            <div className="slider my-5">
-                                <VisibilitySensor onChange={this.onChange.bind(this)}>
-                                    <KtnSwiper slideRender={slideRender}
-                                               config={{
-                                                   slidesPerView: 3
-                                               }}
-                                               onAfterInit={this.onAfterInitSwiper.bind(this)}
-                                               data={this.props.recipe.contains}></KtnSwiper>
+                            <div className="slider">
+                                <VisibilitySensor onChange={goNextSlide}>
+                                    <KtnSwiper ref={childRef}
+                                               slideRender={typeFood}
+                                               config={options}
+                                               slides={recipe.contains}>
+                                    </KtnSwiper>
                                 </VisibilitySensor>
                             </div>
-                            {this.props.recipe.steps.map((step: KtnStepModel, index: number) => {
+                            {recipe.steps.map((step: KtnStepModel, index: number) => {
                                 return (
                                     <div className="d-flex p-5"
                                          key={step.id}>
@@ -142,18 +93,11 @@ export default class KtnRecipe extends Component<{
                         <div className="col-4 bg-light">
                             <StickyContainer className="w-100 h-100">
                                 <Sticky>
-                                    {({
-                                          style,
-                                          isSticky,
-                                          wasSticky,
-                                          distanceFromTop,
-                                          distanceFromBottom,
-                                          calculatedHeight
-                                      }) => (
+                                    {({style}) => (
                                         <div style={{...style}}>
-                                            <div className={this.getClassesForSticky(isSticky)}>
-                                                {/*<KtnRangeCalories query={this.state}
-                                                                  forRecipe={true}></KtnRangeCalories>*/}
+                                            <div className="align-items-center d-flex pt-3">
+                                                <KtnRangeCalories filter={{min: 20, max: 40}}
+                                                                  onUpdate={() => 1}></KtnRangeCalories>
                                             </div>
                                         </div>
                                     )}
@@ -162,7 +106,15 @@ export default class KtnRecipe extends Component<{
                         </div>
                     </div>
                 </div>
-            </div>
-        );
-    }
-}
+            )}
+        </div>
+    )
+});
+
+
+
+
+
+
+
+

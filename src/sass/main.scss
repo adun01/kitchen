@@ -9,33 +9,10 @@ body {
   background-color: #fff;
 }
 
-#logo {
-  width: auto;
-  height: 2.8em;
-}
-
-#first-display {
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  width: 100%;
-  height: 100%;
-  &:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    z-index: 1;
-  }
-}
-
 #main-container {
   padding-top: 90px;
 }
 
-.pointer {
+.cursor-pointer {
   cursor: pointer;
 }

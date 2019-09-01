@@ -1,10 +1,14 @@
 const path = require('path');
+const WebpackShellPlugin = require('webpack-shell-plugin');
 
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: {
+        main: "./src/index.tsx",
+        serviceWorkers: "./src/service-workers/index.tsx"
+    },
     output: {
         filename: "[name].bundle.js",
-        path: path.resolve('../', 'kitchen-serv/public/js')
+        path: path.resolve('../', 'kitchen-server/public')
     },
     resolve: {
         extensions: ['.tsx', '.js', '.jsx', '.jpg', '.svg']
@@ -24,7 +28,8 @@ module.exports = {
             },
             {
                 test: /\.(png|woff|woff2|eot|ttf|svg|jpg)$/,
-                loader: 'url-loader?limit=100000'
+                loader: 'url-loader?limit=100000',
+                exclude: [/.scss$/]
             }, {
                 test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
@@ -37,6 +42,16 @@ module.exports = {
             }
         ]
     },
+    plugins: [
+        new WebpackShellPlugin({
+            onBuildStart: [
+                'cp ./manifest.json ../kitchen-server/public/',
+                'cp ./index.html ../kitchen-server/public/',
+                'cp -r ./favicons ../kitchen-server/public/'
+            ],
+            onBuildEnd: ['echo "Webpack End"']
+        })
+    ],
     watch: process.env.NODE_ENV === 'development',
     devtool: process.env.NODE_ENV === 'development' && 'source-map'
 };

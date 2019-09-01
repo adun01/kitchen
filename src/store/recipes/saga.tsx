@@ -1,9 +1,12 @@
-import {select, call, put, takeLatest, takeEvery} from 'redux-saga/effects';
+import {call, put, takeLatest, takeEvery} from 'redux-saga/effects';
 
-import {KtnRecipeModel, KtnRecipeShortModel} from '../../models/recipe';
+import {LIST_SEARCH, ONE_GET} from './types';
+import {ListSuccess, SuccessOne} from './actions';
 
-import {LIST_SEARCH, ONE_GET} from '../recipes/types';
-import {ListSuccess, SuccessOne} from '../recipes/actions';
+import {KtnRecipeModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from "../../models/recipe/short";
+
+import {getStorage} from "../../utils";
 
 function getRecipes(query: string) {
     return fetch('/api/search' + query)
@@ -17,8 +20,13 @@ function oneRecipe(name: string) {
 
 function* SearchRecipes(action: any) {
     const rawRecipes = yield call(getRecipes, action.payload);
-    const state = yield select();
-    const recipes = rawRecipes.map((recipe: any): KtnRecipeModel => new KtnRecipeModel(recipe));
+    const favorites = getStorage('favorites');
+    const recipes: KtnRecipeShortModel[] = rawRecipes.map((recipe: any): KtnRecipeShortModel => {
+        return new KtnRecipeShortModel({
+            ...recipe,
+            isFavorite: recipe.id && favorites.includes(recipe.id)
+        })
+    });
     yield put(ListSuccess(recipes));
 }
 

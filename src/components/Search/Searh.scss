@@ -1,0 +1,17 @@
+#first-display {
+  height: 350px;
+  background-image: url("/images/first-display.jpg");
+  h3 {
+    z-index: 2;
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+}

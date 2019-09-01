@@ -1,15 +1,7 @@
-import {ADD, REMOVE} from './types';
+import {REFRESH} from './types';
 
-export function Add(name: string) {
+export function Refresh() {
     return {
-        type: ADD,
-        payload: name
-    }
-}
-
-export function Remove(name: string) {
-    return {
-        type: REMOVE,
-        payload: name
+        type: REFRESH
     }
 }

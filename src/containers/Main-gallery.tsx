@@ -1,66 +1,37 @@
-import React, {Component} from 'react';
-import {Dispatch} from 'redux';
-import {connect} from 'react-redux';
-import {Subscription} from 'rxjs';
-
+import React, {useEffect, useState} from 'react';
+import {withRouter} from "react-router";
+import {UnregisterCallback} from 'history';
 import {parse, stringify} from 'query-string';
 
-import {KtnRecipeModel, KtnRecipeShortModel} from '../models/recipe';
-import {KtnCommonStore} from '../store';
-import {KtnRecipeStore} from '../store/recipes';
-import {Add, Remove} from '../store/favorites/actions';
-import {KtnFoodSlide} from '../components/Foor-slide/Food-slide';
+import {getUnsubscribe} from '../utils';
 
-export class KtnMainGallery extends Component<{}, {
-    list: KtnRecipeShortModel[],
-    subscribtion: Subscription | null
-}> {
+import {KtnRecipeShortModel} from '../models/recipe/short';
+import {KtnRecipeSlide} from '../components/Recipe-slide/Recipe-slide';
 
-    constructor(props: {}) {
-        super(props);
-        this.state = {
-            list: [],
-            subscribtion: null
-        };
-    }
+const refreshList: () => void = (): void => KtnRecipeShortModel
+    .refreshList('?' + stringify({...parse(window.location.search)}));
 
-    componentDidMount() {
-        if (this.state && this.state.list) {
-            const query = {...parse(window.location.search)};
-            KtnRecipeShortModel.getList('?' + stringify({
-                ...query
-            }));
-        }
+export const KtnMainGallery = withRouter(({history: {listen}}) => {
+    const [list, setList] = useState<KtnRecipeShortModel[]>([]);
 
-        const subscribtion = KtnRecipeShortModel.getState$()
-            .subscribe((state: KtnRecipeStore) => {
-                this.setState({
-                    list: state.shortList,
-                    subscribtion: subscribtion
-                });
-            });
-    }
+    useEffect((): () => void => {
+        refreshList();
+        return getUnsubscribe(KtnRecipeShortModel.getList$()
+            .subscribe((list: KtnRecipeShortModel[]): void => setList(list)))
+    }, []);
 
-    componentWillUnmount() {
-        this.state.subscribtion && this.state.subscribtion.unsubscribe();
-    }
+    useEffect((): UnregisterCallback => listen((): void => refreshList()), []);
 
-    render() {
-        return (
-            <div className="row">
-                {this.state.list.map((recipe: KtnRecipeShortModel, index: number) => {
-                    return (
-                        <div className="col-4 px-0"
-                             key={recipe.id}>
-                            <div className="ml-3 mb-3">
-                                {<KtnFoodSlide recipe={recipe}>
-                                </KtnFoodSlide>}
-                            </div>
-                        </div>
-
-                    )
-                })}
-            </div>
-        );
-    }
-}
+    return (
+        <div className="row">
+            {list.map((recipe: KtnRecipeShortModel) => {
+                return (
+                    <div className="col-4 px-0"
+                         key={recipe.id}>
+                        <div className="ml-3 mb-3">{KtnRecipeSlide(recipe)}</div>
+                    </div>
+                )
+            })}
+        </div>
+    );
+});

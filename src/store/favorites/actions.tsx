@@ -1,4 +1,4 @@
-import {KtnRecipeShortModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from '../../models/recipe/short';
 
 import {ADD, REMOVE} from './types';
 

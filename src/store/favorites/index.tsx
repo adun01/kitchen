@@ -1,4 +1,4 @@
-import {KtnRecipeShortModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from '../../models/recipe/short';
 
 export class KtnFavoritesStore {
     public list: KtnRecipeShortModel[];

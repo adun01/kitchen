@@ -1,2 +1,1 @@
-export const ADD = 'ADD FILTER';
-export const REMOVE = 'REMOVE FILTER';
+export const REFRESH = 'REFRESH FILTER';

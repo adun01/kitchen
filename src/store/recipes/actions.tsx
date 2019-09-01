@@ -1,6 +1,7 @@
-import {LIST_SEARCH, LIST_SUCCESS, ONE_GET, ONE_SUCCESS} from './types';
+import {LIST_SEARCH, LIST_SUCCESS, ONE_GET, ONE_SUCCESS, REFRESH} from './types';
 
 import {KtnRecipeModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from '../../models/recipe/short';
 
 export function GetList(search: string) {
     return {
@@ -9,10 +10,17 @@ export function GetList(search: string) {
     }
 }
 
-export function ListSuccess(recipes: KtnRecipeModel[]) {
+export function ListSuccess(recipes: KtnRecipeShortModel[]) {
     return {
         type: LIST_SUCCESS,
         payload: recipes
+    }
+}
+
+export function Refresh(recipe: KtnRecipeShortModel) {
+    return {
+        type: REFRESH,
+        payload: recipe
     }
 }
 

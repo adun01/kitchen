@@ -1,6 +1,7 @@
 import {select, call, put, takeLatest, takeEvery} from 'redux-saga/effects';
 
-import {KtnRecipeShortModel, KtnRecipeModel} from '../../models/recipe';
+import {KtnRecipeModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from '../../models/recipe/short';
 
 import {Add, Remove} from './actions';
 import {ADD, REMOVE} from './types';

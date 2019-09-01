@@ -2,6 +2,12 @@
 
 header {
   background-color: $bgBackgroundDefaultBlack;
+  .logo {
+    width: 32px;
+  }
+  .fa-user-o {
+    font-size: 2em;
+  }
   .navbar {
     padding: 0;
     margin: 0;

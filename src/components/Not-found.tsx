@@ -1,24 +1,16 @@
 import React from 'react';
-import {Switch, Route, Link} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-/**
- * Component for page 404
- */
-export default function KtnNotFound() {
+export const KtnNotFound = () => {
     return (
         <div className="row">
-            <div className="col-lg-12">
-                <div className="page-header">
-                    <h1 id="containers">404</h1>
+            <h1 className="text-black-50">404</h1>
+            <div className="card w-100">
+                <div className="card-header">
+                    Страницы не существует
                 </div>
-                <div className="bs-component">
-                    <div className="jumbotron">
-                        <p className="lead">Страницы не существует</p>
-                        <hr className="my-4"></hr>
-                        <p className="lead">
-                            <Link to="/" className="btn btn-primary btn-lg">Вернуться на главную</Link>
-                        </p>
-                    </div>
+                <div className="card-body">
+                    <Link to="/" className="btn btn-primary btn-lg">Вернуться на главную</Link>
                 </div>
             </div>
         </div>

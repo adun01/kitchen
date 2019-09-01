@@ -8,8 +8,8 @@ interface Props {
     config: {
         slidesPerView: number
     },
-    onAfterInit: (swiper: Swiper) => void,
-    data: any[]
+    onAfterInit?: (swiper: Swiper) => void,
+    slides: any[]
 }
 
 /**
@@ -17,17 +17,22 @@ interface Props {
  */
 export default class KtnSwiper extends Component<Props, {
     slides: any[],
+    swiper: Swiper | null,
     offset: number
 }> {
 
     constructor(props: Props) {
         super(props);
         this.state = {
-            slides: this.props.data,
-            offset: 0
+            slides: this.props.slides,
+            offset: 0,
+            swiper: null
         };
     }
 
+    public nextSlide(): void {
+        this.state.swiper && this.state.swiper.slideNext();
+    }
 
     /**
      * initializing the swipe
@@ -45,21 +50,24 @@ export default class KtnSwiper extends Component<Props, {
                 }
             },
         });
-        this.props.onAfterInit(swiper);
+        this.setState((state) => ({
+            ...state,
+            swiper
+        }));
     }
 
     render(): ReactNode {
-        const Render = this.props.slideRender;
+        const RenderSlide = this.props.slideRender;
         return (
             <div className="w-100">
-                <div className="swiper-container">
+                <div className="swiper-container py-5">
                     <div className="swiper-wrapper">
                         {this.state.slides.map((slide, index) => (
                             <div className="swiper-slide"
                                  key={index}
                                  style={{left: this.state.offset + 'px'}}
                             >
-                                <Render product={slide}></Render>
+                                <RenderSlide product={slide}></RenderSlide>
                             </div>
                         ))}
                     </div>

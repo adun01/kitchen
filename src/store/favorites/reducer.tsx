@@ -1,5 +1,4 @@
-import {KtnProductModel} from '../../models/product';
-import {KtnRecipeShortModel} from '../../models/recipe';
+import {KtnRecipeShortModel} from '../../models/recipe/short';
 
 import {KtnFavoritesStore} from './';
 
@@ -14,6 +13,5 @@ export function KtnFavoriteReducer(state: KtnFavoritesStore = new KtnFavoritesSt
     switch (action.type) {
         default:
             return state;
-            break;
     }
 }
