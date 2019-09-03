@@ -1,4 +1,5 @@
-import {ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs';
+import {distinctUntilChanged} from "rxjs/operators";
 
 import {KtnCommonStore} from '../store';
 import {KtnBaseModel} from "./index";
@@ -37,8 +38,9 @@ export class KtnFilterLabel {
 
 export class KtnFiltersModel {
 
-    private static store$: ReplaySubject<KtnFiltersModel> = KtnBaseModel
-        .getState$((state: KtnCommonStore): KtnFiltersModel => state.filters);
+    private static store$: Observable<KtnFiltersModel> = KtnBaseModel
+        .getState$((state: KtnCommonStore): KtnFiltersModel => state.filters)
+        .pipe(distinctUntilChanged());
 
     public labels: KtnFilterLabel[];
 
@@ -46,7 +48,7 @@ export class KtnFiltersModel {
     public min: number;
     public max: number;
 
-    public static getStore$(): ReplaySubject<KtnFiltersModel> {
+    public static getStore$(): Observable<KtnFiltersModel> {
         return this.store$;
     }
 

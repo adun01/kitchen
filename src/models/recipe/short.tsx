@@ -1,14 +1,17 @@
 import {KtnBaseModel} from "../index";
 import {GetList, Refresh} from "../../store/recipes/actions";
-import {Observable, ReplaySubject} from "rxjs";
-import {filter, map} from "rxjs/operators";
+import {Observable} from "rxjs";
+import {distinctUntilChanged, filter, map} from "rxjs/operators";
 import {KtnCommonStore} from "../../store";
 import {KtnShortRecipeStore} from "../../store/recipes";
 
+export const getState = (state: KtnCommonStore): KtnShortRecipeStore => state.shortRecipes;
+
 export class KtnRecipeShortModel {
 
-    private static store$: ReplaySubject<KtnShortRecipeStore> = KtnBaseModel
-        .getState$((state: KtnCommonStore): KtnShortRecipeStore => state.shortRecipes);
+    private static store$: Observable<KtnShortRecipeStore> = KtnBaseModel
+        .getState$(getState)
+        .pipe(distinctUntilChanged());
 
     public static refreshList(search: string): void {
         KtnBaseModel.dispatch(GetList(search));

@@ -10,7 +10,7 @@ const toggle = (event: React.MouseEvent<HTMLElement>, recipe: KtnRecipeShortMode
     recipe.toogleIsFavorite();
 };
 
-export const KtnFavoritesList = () => {
+export const KtnFavoritesList = React.memo(() => {
 
     const [favorites, setFavorites] = useState<KtnRecipeShortModel[]>([]);
 
@@ -37,4 +37,4 @@ export const KtnFavoritesList = () => {
             </h5>
         </div>
     )
-};
+});

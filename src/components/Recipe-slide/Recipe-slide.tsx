@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import classNames from 'classnames';
 import {Link} from 'react-router-dom';
 
@@ -12,11 +12,14 @@ const getClassesForIcon = (isFavorite: boolean): string => classNames({
     'actions-favotire': true
 });
 
-export const KtnRecipeSlide = (recipe: KtnRecipeShortModel) => {
+export const KtnRecipeSlide = React.memo(({recipe}: { recipe: KtnRecipeShortModel }) => {
+
+    const classNames: string = useMemo(() => getClassesForIcon(recipe.isFavorite), [recipe.isFavorite]);
+
     return (
         <Link className="card text-white food-slide border-0"
               to={'/recipe/' + recipe.url}>
-            <i className={getClassesForIcon(recipe.isFavorite)}
+            <i className={classNames}
                onClick={(event: React.MouseEvent<HTMLElement>) => {
                    event.preventDefault();
                    recipe.toogleIsFavorite();
@@ -30,4 +33,4 @@ export const KtnRecipeSlide = (recipe: KtnRecipeShortModel) => {
             </span>
         </Link>
     );
-};
+});

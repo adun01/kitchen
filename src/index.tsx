@@ -5,7 +5,7 @@ import {Switch, Route, BrowserRouter} from 'react-router-dom';
 
 import {KtnHeader} from './containers/Header/Header';
 import {KtnSearchPage} from './components/Search/Search';
-import {KtnRecipe} from "./components/Recipe/Recipe";
+import {KtnRecipe} from "./containers/Recipe/Recipe";
 import {KtnNotFound} from './components/Not-found';
 import {KtnCommonStoreInstance} from './store';
 import './sass/main.scss';

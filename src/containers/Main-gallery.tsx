@@ -28,7 +28,9 @@ export const KtnMainGallery = withRouter(({history: {listen}}) => {
                 return (
                     <div className="col-4 px-0"
                          key={recipe.id}>
-                        <div className="ml-3 mb-3">{KtnRecipeSlide(recipe)}</div>
+                        <div className="ml-3 mb-3">
+                            <KtnRecipeSlide recipe={recipe}></KtnRecipeSlide>
+                        </div>
                     </div>
                 )
             })}

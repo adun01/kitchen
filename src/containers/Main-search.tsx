@@ -1,20 +1,22 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
+import {withRouter} from "react-router";
 
 import {KtnRangeCalories} from '../components/Range-calories';
 import {KtnFilterList} from './Filters-list';
 import {KtnFiltersModel} from "../models/filters";
-import {withRouter} from "react-router";
-import {updateQuery} from '../utils';
 import {KtnFavoritesList} from "./Favorites-list";
+import {updateQuery} from '../utils';
 
 import {getUnsubscribe} from '../utils';
 
-export const KtnMainSearch = withRouter(({history}) => {
+let min: number, max: number;
+
+export const KtnMainSearch = React.memo(withRouter(({history}) => {
 
     const [filter, setFilter] = useState<KtnFiltersModel>();
     const [query, setQuery] = useState<string>('');
 
-    let min: number, max: number;
+    const onSetFilter = () => (event: React.ChangeEvent<HTMLInputElement>): void => setQuery(event.target.value);
 
     const onSubmit = (): void => {
         history.push({
@@ -32,6 +34,11 @@ export const KtnMainSearch = withRouter(({history}) => {
         max = maxRange;
     };
 
+    const params: { min: number, max: number } = useMemo(() => ({
+        min: min || filter && filter.min || 0,
+        max: max || filter && filter.max || 0
+    }), [min, max]);
+
     useEffect((): () => void => getUnsubscribe(KtnFiltersModel.getStore$()
         .subscribe((state: KtnFiltersModel): void => {
             setFilter(state);
@@ -47,7 +54,7 @@ export const KtnMainSearch = withRouter(({history}) => {
                         <input className="form-control form-control-lg"
                                type="text"
                                value={query}
-                               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => setQuery(event.target.value)}
+                               onChange={onSetFilter}
                                placeholder="Греческий диетический..."></input>
                     </div>
                 </div>
@@ -63,7 +70,7 @@ export const KtnMainSearch = withRouter(({history}) => {
                 {filter &&
                 <KtnRangeCalories
                     onUpdate={onUpdateRange}
-                    filter={{min: filter.min, max: filter.max}}></KtnRangeCalories>}
+                    filter={params}></KtnRangeCalories>}
             </div>
             <div className="my-5">
                 <KtnFilterList></KtnFilterList>
@@ -73,4 +80,4 @@ export const KtnMainSearch = withRouter(({history}) => {
             </div>
         </form>
     )
-});
+}));

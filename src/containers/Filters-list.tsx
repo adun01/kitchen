@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {withRouter,} from 'react-router';
 import classNames from 'classnames';
 
@@ -16,7 +16,7 @@ const getClassesLabel = (value: boolean): string => {
     });
 };
 
-export const KtnFilterList = withRouter(({history: {push, location: {search}}}) => {
+export const KtnFilterList = React.memo(withRouter(({history: {push, location: {search}}}) => {
 
     const [labels, setLabels] = useState<KtnFilterLabel[]>([]);
     const switchState = (label: KtnFilterLabel): void => {
@@ -45,4 +45,4 @@ export const KtnFilterList = withRouter(({history: {push, location: {search}}}) 
             <br/>
         </div>
     )
-});
+}));

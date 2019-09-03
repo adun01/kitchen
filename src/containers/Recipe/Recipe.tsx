@@ -1,4 +1,5 @@
-import React, {ReactNode, RefObject, useEffect, useState} from 'react';
+import React, {RefObject, useEffect, useMemo, useState} from 'react';
+import {withRouter} from "react-router";
 import {StickyContainer, Sticky} from 'react-sticky';
 import VisibilitySensor from 'react-visibility-sensor';
 
@@ -6,16 +7,15 @@ import {KtnRecipeModel} from '../../models/recipe';
 import {KtnStepModel} from '../../models/step';
 import {KtnProductModel} from '../../models/product';
 import './Recipe.scss';
-import KtnSwiper from '../Swiper/Swiper';
-import {KtnTypeFoodImage} from '../Type-food-image/Type-food-image';
-import {KtnRangeCalories} from '../Range-calories';
-import {withRouter} from "react-router";
+import KtnSwiper from '../../components/Swiper/Swiper';
+import {KtnTypeFoodImage} from '../../components/Type-food-image/Type-food-image';
+import {KtnRangeCalories} from '../../components/Range-calories';
 import {getUnsubscribe} from "../../utils";
 
 /**
  * For displaing slide
  */
-function typeFood(data: { product: KtnProductModel }): ReactNode {
+const typeFood = React.memo((data: { product: KtnProductModel }) => {
     return (
         <div>
             <div className="slide align-items-center d-flex flex-column-reverse justify-content-around text-center">
@@ -24,14 +24,14 @@ function typeFood(data: { product: KtnProductModel }): ReactNode {
                     {data.product.count && <h6>{data.product.count + ' ' + data.product.unitOfMeasure}</h6>}
                 </div>
                 <div className="text-center">
-                    {KtnTypeFoodImage(data.product)}
+                    <KtnTypeFoodImage product={data.product}></KtnTypeFoodImage>
                 </div>
             </div>
         </div>
     )
-}
+});
 
-const getNameFromUrl = (path: string): string => path.split('/')[2];
+const getNameFromUrl: (value: string) => string = (path: string): string => path.split('/')[2];
 
 const options = {
     slidesPerView: 3
@@ -44,14 +44,16 @@ export const KtnRecipe = withRouter(({location: {pathname}}) => {
 
     let wasNextSlide: boolean = false;
 
-    const goNextSlide = (value: boolean): void => {
+    const goNextSlide: (value: boolean) => void = (value: boolean): void => {
         if (!wasNextSlide && value && childRef.current) {
             wasNextSlide = true;
             childRef.current.nextSlide();
         }
     };
 
-    useEffect((): () => void => getUnsubscribe(KtnRecipeModel.getOne$(getNameFromUrl(pathname))
+    const getName: string = useMemo(() => getNameFromUrl(pathname), [pathname]);
+
+    useEffect((): () => void => getUnsubscribe(KtnRecipeModel.getOne$(getName)
         .subscribe((recipe: KtnRecipeModel | undefined): void => setRecipe(recipe))), []);
 
     return (
@@ -110,11 +112,3 @@ export const KtnRecipe = withRouter(({location: {pathname}}) => {
         </div>
     )
 });
-
-
-
-
-
-
-
-

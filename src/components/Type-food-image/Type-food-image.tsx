@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import ReactTooltip from 'react-tooltip';
 
 import potatoes from '../../svg/potatoes.svg';
@@ -42,10 +42,13 @@ const getIcon = (type: number) => {
     }
 };
 
-export const KtnTypeFoodImage = (product: KtnProductModel) => {
+export const KtnTypeFoodImage = React.memo(({product}: { product: KtnProductModel }) => {
+
+    const icon = useMemo(() => getIcon(product.iconType), [product.iconType]);
+
     return (
         <div className="type-food-image">
-            <img src={getIcon(product.iconType)}
+            <img src={icon}
                  data-tip
                  data-for={'happyFace' + product.iconType}/>
             <ReactTooltip aria-haspopup='true'
@@ -59,4 +62,4 @@ export const KtnTypeFoodImage = (product: KtnProductModel) => {
             </ReactTooltip>
         </div>
     );
-};
+});

@@ -3,7 +3,7 @@ import React, {Component, ReactNode} from 'react';
 import Swiper from 'swiper';
 import 'swiper/src/swiper.scss';
 
-interface Props {
+interface PropsInterface {
     slideRender: Function,
     config: {
         slidesPerView: number
@@ -15,13 +15,13 @@ interface Props {
 /**
  * Displaing swiper
  */
-export default class KtnSwiper extends Component<Props, {
+export default class KtnSwiper extends Component<PropsInterface, {
     slides: any[],
     swiper: Swiper | null,
     offset: number
 }> {
 
-    constructor(props: Props) {
+    constructor(props: PropsInterface) {
         super(props);
         this.state = {
             slides: this.props.slides,

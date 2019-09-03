@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import InputRange, {Range} from 'react-input-range';
 import 'react-input-range/lib/css/index.css';
 
@@ -10,9 +10,7 @@ const isDangerClassName = (fats: number): string => fats >= 50 ? 'text-danger' :
 /**
  * to calculate the total amount of calories
  */
-const getTotal = (min: number, max: number): number => {
-    return (max * 4) + (min * 4) + ((100 - max) * 9);
-};
+const getTotal = (min: number, max: number): number => (max * 4) + (min * 4) + ((100 - max) * 9);
 
 /**
  * returing label for range calories
@@ -35,7 +33,7 @@ const getLabel = (value: number): string => {
     return result;
 };
 
-export const KtnRangeCalories = (props: {
+export const KtnRangeCalories = React.memo((props: {
     filter: {
         min: number,
         max: number
@@ -47,6 +45,9 @@ export const KtnRangeCalories = (props: {
     const [max, setMax] = useState<number>(props.filter.max);
 
     const carbohydrates: number = max - min, fats: number = 100 - max;
+
+    const total: number = useMemo(() => getTotal(min, max), [min, max]);
+    const fatClassName: string = useMemo(() => isDangerClassName(fats), [fats]);
 
     const onUpdate = (range: Range | number): void => {
         if (typeof range === 'object') {
@@ -86,19 +87,19 @@ export const KtnRangeCalories = (props: {
                     <td scope="row">Грамм</td>
                     <td>{min}</td>
                     <td>{carbohydrates}</td>
-                    <td className={isDangerClassName(fats)}>{fats}</td>
+                    <td className={fatClassName}>{fats}</td>
                     <th scope="row">100</th>
                 </tr>
                 <tr>
                     <td scope="row">Калорий</td>
                     <td>{min * 4}</td>
                     <td>{carbohydrates * 4}</td>
-                    <td className={isDangerClassName(fats)}>{fats * 9}</td>
-                    <th scope="row">{getTotal(min, max)}</th>
+                    <td className={fatClassName}>{fats * 9}</td>
+                    <th scope="row">{total}</th>
                 </tr>
                 </tbody>
             </table>
             <sup className="text-warning">*(на 100 грамм продукта)</sup>
         </div>
     )
-};
+});

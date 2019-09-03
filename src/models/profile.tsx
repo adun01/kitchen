@@ -1,6 +1,6 @@
 import {KtnBaseModel} from "./index";
 import {Observable} from "rxjs";
-import {filter, map} from "rxjs/operators";
+import {distinctUntilChanged, filter, map} from "rxjs/operators";
 
 import {GetOne} from "../store/profiles/actions";
 import {KtnProfileStore} from "../store/profiles";
@@ -10,7 +10,8 @@ const selectStore = (state: KtnCommonStore): KtnProfileStore => state.profile;
 
 export class KtnProfileModel {
 
-    private static store$: Observable<KtnProfileStore> = KtnBaseModel.getState$(selectStore);
+    private static store$: Observable<KtnProfileStore> = KtnBaseModel.getState$(selectStore)
+        .pipe(distinctUntilChanged());
 
     public static getOne$(): Observable<KtnProfileModel> {
         KtnBaseModel.dispatch(GetOne());

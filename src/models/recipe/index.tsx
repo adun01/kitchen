@@ -1,11 +1,11 @@
 import {KtnProductModel} from "../product";
 import {KtnStepModel} from "../step";
-import {Observable, ReplaySubject} from "rxjs";
-import {KtnRecipeStore, KtnShortRecipeStore} from "../../store/recipes";
+import {Observable} from "rxjs";
+import {KtnRecipeStore} from "../../store/recipes";
 import {KtnBaseModel} from "../index";
 import {KtnCommonStore} from "../../store";
-import {GetList, GetOne} from "../../store/recipes/actions";
-import {filter, map} from "rxjs/operators";
+import {GetOne} from "../../store/recipes/actions";
+import {distinctUntilChanged, filter, map} from "rxjs/operators";
 import {Action} from "redux";
 
 export class KtnRecipeModel {
@@ -19,8 +19,9 @@ export class KtnRecipeModel {
     public contains: KtnProductModel[];
     public steps: KtnStepModel[];
 
-    private static store$: ReplaySubject<KtnRecipeStore> = KtnBaseModel
-        .getState$((state: KtnCommonStore): KtnRecipeStore => state.recipes);
+    private static store$: Observable<KtnRecipeStore> = KtnBaseModel
+        .getState$((state: KtnCommonStore): KtnRecipeStore => state.recipes)
+        .pipe(distinctUntilChanged());
 
     public static dispatch(action: Action): void {
         KtnBaseModel.dispatch(action);
