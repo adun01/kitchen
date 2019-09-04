@@ -10,7 +10,10 @@ export class ServiceWorkerOne {
             fetch(event.request);
         } else {
             caches.match(event.request).then((matchResponse) => matchResponse || fetch(event.request)
-                .then(matchResponse => matchResponse || fetch(event.request)));
+                .then(fetchResponse => caches.open('images').then((cache) => {
+                    cache.put(event.request, fetchResponse.clone());
+                    return fetchResponse;
+                })));
         }
     }
 }
