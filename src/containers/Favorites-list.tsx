@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {Link} from "react-router-dom";
 
-import {getUnsubscribe} from '../utils';
-
 import {KtnRecipeShortModel} from "../models/recipe/short";
+import {useShortList} from "../common/hooks";
 
 const toggle = (event: React.MouseEvent<HTMLElement>, recipe: KtnRecipeShortModel): void => {
     event.preventDefault();
@@ -11,13 +10,7 @@ const toggle = (event: React.MouseEvent<HTMLElement>, recipe: KtnRecipeShortMode
 };
 
 export const KtnFavoritesList = React.memo(() => {
-
-    const [favorites, setFavorites] = useState<KtnRecipeShortModel[]>([]);
-
-    useEffect((): () => void => getUnsubscribe(KtnRecipeShortModel.getList$()
-        .subscribe((list: KtnRecipeShortModel[]): void => {
-            setFavorites(list.filter((recipe: KtnRecipeShortModel): boolean => recipe.isFavorite));
-        })), []);
+    const favorites: KtnRecipeShortModel[] = useShortList((recipe: KtnRecipeShortModel): boolean => recipe.isFavorite);
 
     return (
         <div>
