@@ -42,6 +42,8 @@ export const KtnMainSearch = React.memo(withRouter(({history}) => {
     useEffect((): () => void => getUnsubscribe(KtnFiltersModel.getStore$()
         .subscribe((state: KtnFiltersModel): void => {
             setFilter(state);
+            min = state.min;
+            max = state.max;
             setQuery(state.query || '');
         })), []);
 
@@ -54,7 +56,7 @@ export const KtnMainSearch = React.memo(withRouter(({history}) => {
                         <input className="form-control form-control-lg"
                                type="text"
                                value={query}
-                               onChange={onSetFilter}
+                               onChange={onSetFilter()}
                                placeholder="Греческий диетический..."></input>
                     </div>
                 </div>

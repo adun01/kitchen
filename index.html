@@ -9,12 +9,30 @@
     <meta name="theme-color" content="#ffffff">
     <title>React App</title>
     <script>
-        if ('serviceWorker' in navigator) {
+        function register() {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/serviceWorkers.bundle.js', {
                     scope: '/'
                 });
             });
+        }
+
+        if ('serviceWorker' in navigator) {
+            const currentVersion = '0.1';
+            const storageVersion = localStorage.getItem('version');
+            if (currentVersion !== storageVersion) {
+                localStorage.setItem('version', currentVersion);
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    const promises = [];
+                    for (let registration of registrations) {
+                        promises.push(registration.unregister());
+                    }
+                    Promise.all(promises)
+                        .then(() => register())
+                });
+            } else {
+                register();
+            }
         }
     </script>
 </head>
