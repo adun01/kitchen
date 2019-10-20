@@ -1,22 +1,26 @@
-import React from 'react';
-import {Link} from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
 
-import {KtnRecipeShortModel} from "../models/recipe/short";
-import {useShortList} from "../common/hooks";
+import {KtnRecipeShortModel} from '../models/recipe/short';
+import {KtnFavoritesModel} from '../models/favorites';
+import {getUnsubscribe} from '../utils';
 
 const toggle = (event: React.MouseEvent<HTMLElement>, recipe: KtnRecipeShortModel): void => {
     event.preventDefault();
     recipe.toogleIsFavorite();
 };
 
-export const KtnFavoritesList = React.memo(() => {
-    const favorites: KtnRecipeShortModel[] = useShortList((recipe: KtnRecipeShortModel): boolean => recipe.isFavorite);
+export const KtnFavoritesList = () => {
+    const [favorites, setFavorites] = useState<KtnRecipeShortModel[]>([]);
+
+    useEffect(() => getUnsubscribe(KtnFavoritesModel.list$
+        .subscribe((list: KtnRecipeShortModel[]): void => setFavorites(list))), []);
 
     return (
         <div>
             <h4>Любимые блюда:</h4>
             <h5 className="mt-3">
-                {favorites.map((recipe: KtnRecipeShortModel) => (
+                {favorites.length ? favorites.map((recipe: KtnRecipeShortModel) => (
                     <Link to={'/recipe/' + recipe.url}
                           key={recipe.id}>
                         <button className="btn btn-primary cursor-pointer mb-2"
@@ -26,8 +30,8 @@ export const KtnFavoritesList = React.memo(() => {
                             {recipe.name}
                         </button>
                     </Link>
-                ))}
+                )) : 'Список пуст.'}
             </h5>
         </div>
     )
-});
+};

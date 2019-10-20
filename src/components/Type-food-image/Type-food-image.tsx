@@ -11,7 +11,7 @@ import salt from '../../svg/salt.svg';
 import chiclenLegs from '../../svg/chicken-legs.svg';
 import './Type-food-image.scss'
 
-import {KtnProductModel} from "../../models/product";
+import {KtnProductModel} from '../../models/recipe';
 
 const getIcon = (type: number) => {
     switch (type) {

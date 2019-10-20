@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {withRouter,} from 'react-router';
 import classNames from 'classnames';
 
-import {getUnsubscribe, updateQuery} from "../utils";
+import {getUnsubscribe, updateQuery} from '../utils';
 
 import {KtnFiltersModel, KtnFilterLabel} from '../models/filters';
 
@@ -16,7 +16,7 @@ const getClassesLabel = (value: boolean): string => {
     });
 };
 
-export const KtnFilterList = React.memo(withRouter(({history: {push, location: {search}}}) => {
+export const KtnLabelList = React.memo(withRouter(({history: {push, location: {search}}}) => {
 
     const [labels, setLabels] = useState<KtnFilterLabel[]>([]);
     const switchState = (label: KtnFilterLabel): void => {
@@ -28,8 +28,8 @@ export const KtnFilterList = React.memo(withRouter(({history: {push, location: {
         });
     };
 
-    useEffect((): () => void => getUnsubscribe(KtnFiltersModel.getStore$()
-        .subscribe((state: KtnFiltersModel): void => setLabels(state.labels))), []);
+    useEffect((): () => void => getUnsubscribe(KtnFiltersModel.labels$
+        .subscribe((list: KtnFilterLabel[]): void => setLabels(list))), []);
 
     return (
         <div>

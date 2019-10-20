@@ -1,32 +1,32 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {withRouter} from "react-router";
+import React, {useEffect, useState} from 'react';
+import {withRouter} from 'react-router';
+
+import {KtnFiltersModel, KtnSearchInterface} from "../models/filters";
 
 import {KtnRangeCalories} from '../components/Range-calories';
-import {KtnFilterList} from './Filters-list';
-import {KtnFiltersModel} from "../models/filters";
-import {KtnFavoritesList} from "./Favorites-list";
-import {updateQuery} from '../utils';
-
-import {getUnsubscribe} from '../utils';
-
-let min: number, max: number;
+import {KtnLabelList} from './Filters-list';
+import {KtnFavoritesList} from './Favorites-list';
+import {updateQuery, getUnsubscribe} from '../utils';
 
 export const KtnMainSearch = React.memo(withRouter(({history}) => {
 
-    const [filter, setFilter] = useState<KtnFiltersModel>();
-    const [query, setQuery] = useState<string>('');
+    const [query, setQuery] = useState<string>();
+    const [params, setParams] = useState<{ min: number, max: number }>();
+
+    let min: number = 0, max: number = 0;
 
     const onSetFilter = () => (event: React.ChangeEvent<HTMLInputElement>): void => setQuery(event.target.value);
 
     const onSubmit = (): void => {
+        const data = {
+            min: min || params && params.min,
+            max: max || params && params.max,
+            query: query
+        };
         history.push({
-            search: '?' + updateQuery(history.location.search, {
-                min: min || filter && filter.min,
-                max: max || filter && filter.max,
-                query: query
-            })
+            search: '?' + updateQuery(history.location.search, data)
         });
-        filter && filter.refresh();
+        KtnFiltersModel.updateSearch(data);
     };
 
     const onUpdateRange = (minRange: number, maxRange: number): void => {
@@ -34,17 +34,13 @@ export const KtnMainSearch = React.memo(withRouter(({history}) => {
         max = maxRange;
     };
 
-    const params: { min: number, max: number } = useMemo(() => ({
-        min: min || filter && filter.min || 0,
-        max: max || filter && filter.max || 0
-    }), [min, max]);
-
-    useEffect((): () => void => getUnsubscribe(KtnFiltersModel.getStore$()
-        .subscribe((state: KtnFiltersModel): void => {
-            setFilter(state);
-            min = state.min;
-            max = state.max;
-            setQuery(state.query || '');
+    useEffect(() => getUnsubscribe(KtnFiltersModel.search$
+        .subscribe((data: KtnSearchInterface): void => {
+            setQuery(data.query);
+            setParams({
+                min: data.min,
+                max: data.max
+            });
         })), []);
 
     return (
@@ -69,13 +65,12 @@ export const KtnMainSearch = React.memo(withRouter(({history}) => {
                 </div>
             </div>
             <div className="form-row">
-                {filter &&
-                <KtnRangeCalories
+                {params && <KtnRangeCalories
                     onUpdate={onUpdateRange}
                     filter={params}></KtnRangeCalories>}
             </div>
             <div className="my-5">
-                <KtnFilterList></KtnFilterList>
+                <KtnLabelList></KtnLabelList>
                 <div className="mt-5">
                     <KtnFavoritesList></KtnFavoritesList>
                 </div>

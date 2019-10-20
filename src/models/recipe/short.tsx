@@ -1,26 +1,36 @@
-import {KtnBaseModel} from "../index";
-import {GetList, Refresh} from "../../store/recipes/actions";
-import {Observable} from "rxjs";
-import {distinctUntilChanged, filter, map} from "rxjs/operators";
-import {KtnCommonStore} from "../../store";
-import {KtnShortRecipeStore} from "../../store/recipes";
+import {ReplaySubject} from 'rxjs';
+import {KtnFavoritesModel} from '../favorites';
 
-export const getState = (state: KtnCommonStore): KtnShortRecipeStore => state.shortRecipes;
+export interface KtnShortRecipes {
+    [key: number]: KtnRecipeShortModel
+}
 
 export class KtnRecipeShortModel {
 
-    private static store$: Observable<KtnShortRecipeStore> = KtnBaseModel
-        .getState$(getState)
-        .pipe(distinctUntilChanged());
+    public static readonly collection$: ReplaySubject<KtnShortRecipes> = new ReplaySubject<KtnShortRecipes>(1);
 
-    public static refreshList(search: string): void {
-        KtnBaseModel.dispatch(GetList(search));
+    private static _favoritesList: number[] = [];
+
+    public static init(): void {
+        KtnFavoritesModel.list$
+            .subscribe((list: KtnRecipeShortModel[]): void => {
+                this._favoritesList = list.map((recipe: KtnRecipeShortModel): number => recipe.id);
+            });
     }
 
-    public static getList$(): Observable<KtnRecipeShortModel[]> {
-        return KtnRecipeShortModel.store$
-            .pipe(map((state: KtnShortRecipeStore): KtnRecipeShortModel[] => state.list),
-                filter((list: KtnRecipeShortModel[]): boolean => !!list));
+    public static refresh(params: string): void {
+        fetch('/api/search' + params)
+            .then((response: Response): any => response.json())
+            .then((rawRecipes: any) => {
+                const list: KtnShortRecipes = {};
+                rawRecipes.map((recipe: any): void => {
+                    if (this._favoritesList.includes(recipe.id)) {
+                        recipe.isFavorite = true;
+                    }
+                    list[recipe.id] = new KtnRecipeShortModel(recipe);
+                });
+                this.collection$.next(list);
+            });
     }
 
     public name: string;
@@ -39,13 +49,14 @@ export class KtnRecipeShortModel {
         this.isFavorite = Boolean(raw.isFavorite);
     }
 
-    public toogleIsFavorite() {
+    public toogleIsFavorite(): void {
         this.isFavorite = !this.isFavorite;
-        this._refresh();
-    }
-
-    private _refresh(): void {
-        const newRecipe: KtnRecipeShortModel = Object.assign(new KtnRecipeShortModel({}), this);
-        KtnBaseModel.dispatch(Refresh(newRecipe));
+        if (this.isFavorite) {
+            KtnFavoritesModel.add(this);
+        } else {
+            KtnFavoritesModel.remove(this);
+        }
     }
 }
+
+setTimeout(() => KtnRecipeShortModel.init());

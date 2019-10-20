@@ -1,23 +1,37 @@
-import {KtnBaseModel} from "./index";
-import {Observable} from "rxjs";
+import {Observable, ReplaySubject} from "rxjs";
 import {distinctUntilChanged, filter, map} from "rxjs/operators";
 
-import {GetOne} from "../store/profiles/actions";
-import {KtnProfileStore} from "../store/profiles";
-import {KtnCommonStore} from "../store";
-
-const selectStore = (state: KtnCommonStore): KtnProfileStore => state.profile;
+export interface KtnProfilesInterface {
+    [key: number]: KtnProfileModel
+}
 
 export class KtnProfileModel {
 
-    private static store$: Observable<KtnProfileStore> = KtnBaseModel.getState$(selectStore)
-        .pipe(distinctUntilChanged());
+    private static readonly collection$: ReplaySubject<KtnProfilesInterface> = new ReplaySubject(1);
 
-    public static getOne$(): Observable<KtnProfileModel> {
-        KtnBaseModel.dispatch(GetOne());
-        return KtnProfileModel.store$
-            .pipe(filter((state: KtnProfileStore): boolean => !!state.data),
-                map((state: KtnProfileStore) => state.data))
+    private static _collection: KtnProfilesInterface = {};
+
+    private static currentId: number;
+
+    public static getAuth(): void {
+        fetch('/api/auth')
+            .then((response: Response): any => response.json())
+            .then((profile: any): void => {
+                this.currentId = profile.id;
+                const collection: KtnProfilesInterface = {
+                    ...this._collection,
+                    [this.currentId]: new KtnProfileModel(profile)
+                };
+                this.collection$.next(collection);
+            });
+    }
+
+    public static getCurrent$(): Observable<KtnProfileModel> {
+        return this.collection$
+            .pipe(
+                filter((collection: KtnProfilesInterface): boolean => !!collection[this.currentId]),
+                map((collection: KtnProfilesInterface): KtnProfileModel => collection[this.currentId]),
+                distinctUntilChanged())
     }
 
     public id: number;
@@ -30,3 +44,5 @@ export class KtnProfileModel {
         this.surName = raw.surName;
     }
 }
+
+KtnProfileModel.getAuth();

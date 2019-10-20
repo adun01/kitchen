@@ -1,15 +1,7 @@
-import {Observable} from 'rxjs';
-import {distinctUntilChanged} from "rxjs/operators";
-
-import {KtnCommonStore} from '../store';
-import {KtnBaseModel} from "./index";
-import {Refresh} from "../store/filters/actions";
+import {ReplaySubject} from 'rxjs';
+import {parse} from "query-string";
 
 const namesFilters: {
-    withoutMeat: string,
-    onlyFresh: string,
-    isDietary: string,
-    dukanDiet: string,
     [key: string]: string;
 } = {
     withoutMeat: 'без мяса',
@@ -31,41 +23,72 @@ export class KtnFilterLabel {
         this.state = !!props.state;
     }
 
-    public switchState(): void {
+    public switchState(callBack?: () => void): void {
         this.state = !this.state;
+        callBack && callBack();
     }
+}
+
+export interface KtnSearchInterface {
+    min: number;
+    max: number;
+    query: string;
 }
 
 export class KtnFiltersModel {
 
-    private static store$: Observable<KtnFiltersModel> = KtnBaseModel
-        .getState$((state: KtnCommonStore): KtnFiltersModel => state.filters)
-        .pipe(distinctUntilChanged());
+    public static readonly labels$: ReplaySubject<KtnFilterLabel[]> = new ReplaySubject(1);
+    public static readonly search$: ReplaySubject<KtnSearchInterface> = new ReplaySubject(1);
 
-    public labels: KtnFilterLabel[];
+    private static _labels: KtnFilterLabel[] = [];
+    private static _search: KtnSearchInterface = {
+        min: 0,
+        max: 0,
+        query: ''
+    };
 
-    public query: string;
-    public min: number;
-    public max: number;
-
-    public static getStore$(): Observable<KtnFiltersModel> {
-        return this.store$;
+    public static get search() {
+        return this._search;
     }
 
-    constructor(raw: any) {
-        this.query = raw.query;
-        this.min = Number(raw.min || 30);
-        this.max = Number(raw.max || 70);
-        this.labels = [];
-
-        keysFilters.forEach((name: string): number => this.labels.push(new KtnFilterLabel({
-            key: name,
-            title: namesFilters[name],
-            state: raw[name] && !(raw[name] === 'false')
-        })));
+    public static updateSearch(params: any) {
+        const {query, min, max} = params;
+        this._search = {
+            ...this._search,
+            query, min: +min || 30, max: +max || 70
+        };
+        this.search$.next(this._search);
     }
 
-    public refresh(): void {
-        KtnBaseModel.dispatch(Refresh());
+    public static init(params: any): void {
+        this.updateSearch(params);
+        keysFilters.forEach((name: string): void => {
+            if (params[name]) {
+                this._labels.push(
+                    new Proxy(new KtnFilterLabel({
+                        key: name,
+                        title: namesFilters[name],
+                        state: params[name] && !(params[name] === 'false')
+                    }), {
+                        get(target, propKey, receiver) {
+                            const targetValue = Reflect.get(target, propKey, receiver);
+                            if (propKey === 'switchState') {
+                                return function (...args: any) {
+                                    args.push(() => {
+                                        KtnFiltersModel.labels$.next(KtnFiltersModel._labels)
+                                    });
+                                    return targetValue.apply(target, args);
+                                }
+                            } else {
+                                return targetValue;
+                            }
+                        }
+                    })
+                )
+            }
+        });
+        this.labels$.next(this._labels);
     }
 }
+
+KtnFiltersModel.init(parse(window.location.search));

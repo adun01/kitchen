@@ -10,8 +10,8 @@ import {KtnProfileModel} from '../../models/profile';
 
 export const KtnHeader = () => {
 
-    const [profile, setProfile] = useState();
-    useEffect((): () => void => getUnsubscribe(KtnProfileModel.getOne$()
+    const [profile, setProfile] = useState<KtnProfileModel>();
+    useEffect((): () => void => getUnsubscribe(KtnProfileModel.getCurrent$()
         .subscribe((profile: KtnProfileModel): void => setProfile(profile))), []);
 
     return (

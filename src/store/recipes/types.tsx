@@ -1,6 +1,0 @@
-export const ONE_GET = '[RECIPE] GET ONE';
-export const ONE_SUCCESS = '[RECIPE] ONE SUCCESS';
-
-export const LIST_SEARCH = '[RECIPES SHORT] GET RECIPES';
-export const LIST_SUCCESS = '[RECIPES SHORT] LIST SUCCESS';
-export const REFRESH = '[RECIPES SHORT] REFRESH RECIPE';

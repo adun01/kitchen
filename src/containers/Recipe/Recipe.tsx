@@ -1,16 +1,15 @@
 import React, {RefObject, useEffect, useMemo, useState} from 'react';
-import {withRouter} from "react-router";
+import {withRouter} from 'react-router';
 import {StickyContainer, Sticky} from 'react-sticky';
 import VisibilitySensor from 'react-visibility-sensor';
 
-import {KtnRecipeModel} from '../../models/recipe';
-import {KtnStepModel} from '../../models/step';
-import {KtnProductModel} from '../../models/product';
+import {KtnRecipeModel, KtnStepModel, KtnProductModel} from '../../models/recipe';
+
 import './Recipe.scss';
 import KtnSwiper from '../../components/Swiper/Swiper';
 import {KtnTypeFoodImage} from '../../components/Type-food-image/Type-food-image';
 import {KtnRangeCalories} from '../../components/Range-calories';
-import {getUnsubscribe} from "../../utils";
+import {getUnsubscribe} from '../../utils';
 
 /**
  * For displaing slide

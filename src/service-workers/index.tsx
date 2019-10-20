@@ -5,15 +5,20 @@ export class ServiceWorkerOne {
     }
 
     public static onFetched = (event: any): void => {
-        const isImage = event.request.url.search(/$(.png)|(.jpg)|(.gif)|(.ico)/gi) !== -1;
-        if (!isImage) {
-            fetch(event.request);
-        } else {
-            caches.match(event.request).then((matchResponse) => matchResponse || fetch(event.request)
-                .then(fetchResponse => caches.open('images').then((cache) => {
-                    cache.put(event.request, fetchResponse.clone());
-                    return fetchResponse;
-                })));
+        if (event.request.url.search(/$(.png)|(.jpg)|(.gif)|(.ico)/gi) !== -1) {
+            event.respondWith((async () => {
+
+                const match = await caches.match(event.request);
+
+                if (match) {
+                    return match;
+                }
+                return fetch(event.request)
+                    .then(fetchResponse => caches.open('images').then((cache) => {
+                        cache.put(event.request, fetchResponse.clone());
+                        return fetchResponse;
+                    }))
+            })());
         }
     }
 }

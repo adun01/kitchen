@@ -1,23 +1,27 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {withRouter} from "react-router";
 import {UnregisterCallback} from 'history';
 import {parse, stringify} from 'query-string';
 
-import {useShortList} from '../common/hooks';
-
-import {KtnRecipeShortModel} from '../models/recipe/short';
+import {KtnRecipeShortModel, KtnShortRecipes} from '../models/recipe/short';
 import {KtnRecipeSlide} from '../components/Recipe-slide/Recipe-slide';
+import {getUnsubscribe} from "../utils";
 
 const refreshList: () => void = (): void => KtnRecipeShortModel
-    .refreshList('?' + stringify({...parse(window.location.search)}));
+    .refresh('?' + stringify({...parse(window.location.search)}));
 
 export const KtnMainGallery = withRouter(({history: {listen}}) => {
-    const list: KtnRecipeShortModel[] = useShortList();
+    const [list, setList] = useState<KtnRecipeShortModel[]>([]);
 
     useEffect((): UnregisterCallback => {
         refreshList();
         return listen((): void => refreshList());
     }, []);
+
+    useEffect((): () => void => getUnsubscribe(KtnRecipeShortModel.collection$
+        .subscribe((collection: KtnShortRecipes): void => {
+            setList(Object.keys(collection).map((id: string): KtnRecipeShortModel => collection[+id]))
+        })), []);
 
     return (
         <div className="row">
